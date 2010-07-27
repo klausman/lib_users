@@ -15,7 +15,7 @@ from os.path import normpath
 PROCFS = "/proc"
 DELUSERS = []
 __version__ = "0.1"
-__revision__ = "$Revision$"
+__revision__ = "$Revision$".split()[1]
 
 # These are no true libs so don't make our process a deleted libs user
 NOLIBS = ["/SYSV*", "/dev/zero"]
@@ -87,11 +87,11 @@ def main(verbose_mode=False):
 
 def usage():
     """Output usage info"""
+    print "Lib_users version %s (Rev. %s)" % (__version__, __revision__)
+    print
     print "Usage: %s -[vh] --[help|verbose]" % (sys.argv[0])
     print "   -h, --help    - This text"
     print "   -v, --verbose - Print all deleted libs."
-    print
-    print "Lib_users version %s (Rev. %s)" % (__version__, __revision__)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] in ["-h", "--help"]:
