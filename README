@@ -1,0 +1,66 @@
+Lib_users
+=========
+
+Lib_users is a Python script that goes through /proc/*/maps and finds all
+cases of libraries being mapped but marked as deleted. It then extracts the
+programs name and arguments from /proc/<pid>/cmdline. This information is
+presented to the user so that those processes can be restarted.
+
+The reason to do this is that after an update, you might end up with processes
+that run for a long time and still use old libraries. In some cases this might
+be a security problem, as the library may be vulnerable. The script displays
+the first two elements of a program's argv, so that the user can determine the
+actuall app that runs in the cases of Perl or Python scripts. In some cases,
+that might not be enough, so it also displays the PID. One of the cases are
+scripts running with extra args for the interpreter, for example a command
+line like "python -O foo.py".
+
+The script normally only displays the first vulnerable library so as to not
+clutter the display too much. If Lib_users is run with -v or --verbose as a
+command lien argument, it will print all deleted files that the process has
+mapped.
+
+The script cleans up the list from /proc/<pid>/maps to not display false
+positives - some programs have a pseudo file called /SYSxxxx mapped which
+obviously is not a library that was updated.
+
+Dependencies
+============
+
+The script requires Python 2.5 or higher but is not (yet) compatible with
+Python 3. It only uses modules from Pythons standard library, so apart from a
+Python installation, there are no external dependencies.
+
+If you want to run the test suite easily, install the nose Python testing
+framework. This is not needed for day-to-day operations.
+
+Limitations
+===========
+
+The program quite probably only works on Linux (or, at least, only on systems
+that have the same maps file structure as a Linux system). 
+
+As outlined above, long command lines might make it non-obvious what the
+actual running script is. Hence, the PID is always included.
+
+There might be other false positives than the one included, feel free to send
+me test cases (i.e. the maps file that triggers wrong behaviour), so I can fix
+it in future versions.
+
+If the script is not run as root, it can not display all processes on the 
+system that use deleted libs. In the spirit of graceful degradation, it will
+then only display the information for processes it has access to.
+
+License
+======= 
+
+This program is released under the GPL-2, which is included in distributions
+of this script as the file COPYING. If you want to use it for something that
+is incompatible with the GPL-2, feel free to contact me; I'm sure we can work
+something out.
+
+Contact & Contributions
+=======================
+
+If you want to contact me, my email address is klausman-lu@schwarzvogel.de.
+Patches and bug reports (or feature requests, even) are of course welcome.

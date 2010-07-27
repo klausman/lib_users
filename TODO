@@ -1,0 +1,5 @@
+- Docs on what may turn up as deleted in maps files are skimpy at best. Get
+  more false positives from users.
+- Write more tests
+- Maybe come up with a way to find the actual script for the interpreter case.
+  Note: *Don't* use heuristics. Madness lies that way.
