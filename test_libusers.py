@@ -1,7 +1,7 @@
-#!/usr/bin/python -tt
-
 """
 Test suite for lib_users
+
+To be run through nose, not executed directly.
 """
 
 import sys
