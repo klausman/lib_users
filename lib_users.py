@@ -18,7 +18,7 @@ __version__ = "0.1"
 __revision__ = "$Revision$".split()[1]
 
 # These are no true libs so don't make our process a deleted libs user
-NOLIBS = ["/SYSV*", "/dev/zero"]
+NOLIBS = ["/SYSV*", "/dev/zero", "/dev/shm/*", "/drm"]
 
 def get_deleted_libs(map_file):
     """
