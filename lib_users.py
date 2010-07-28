@@ -12,7 +12,8 @@ import fnmatch
 
 from os.path import normpath
 
-PROCFS = "/proc"
+PROCFSPAT = "/proc/*/maps"
+PROCFSBASE = "/proc/"
 DELUSERS = []
 __version__ = "0.1"
 __revision__ = "$Revision$".split()[1]
@@ -41,7 +42,7 @@ def get_progargs(pid):
     """
     Get argv for a given PID and return it as a list
     """
-    argv = open("%s/%s/cmdline" % (PROCFS, pid)).read()
+    argv = open("%s/%s/cmdline" % (PROCFSBASE, pid)).read()
     argv = argv.split('\x00')
     argv = [ e.strip() for e in argv ]
     return argv
@@ -64,9 +65,14 @@ def format_pal(argv, pid, deletedlibs, verbose=False):
 
 def main(verbose_mode=False):
     """Main program"""
-    all_map_files = glob.glob(PROCFS+"/*/maps")
+    all_map_files = glob.glob(PROCFSPAT)
     for map_filename in all_map_files:
-        pid = normpath(map_filename).split("/")[2]
+        try:
+            pid = normpath(map_filename).split("/")[2]
+        except IndexError:
+            # This happens if the filenames look different
+            # than we expect (e.g. the user changed PROCFSPAT)
+            pid= "unknown"
 
         try:
             mapsfile = open(map_filename)
@@ -75,9 +81,11 @@ def main(verbose_mode=False):
             continue
             
         deletedlibs = get_deleted_libs(mapsfile)
-
         if len(deletedlibs) > 0:
-            argv = get_progargs(pid)
+            try:
+                argv = get_progargs(pid)
+            except IOError:
+                argv = ["(unknown)"]
             pal = format_pal(argv, pid, deletedlibs, verbose=verbose_mode)
             DELUSERS.append(pal)
 

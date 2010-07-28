@@ -8,6 +8,8 @@ import sys
 import os
 import locale
 
+from nose.plugins.skip import SkipTest
+
 import lib_users
 
 from cStringIO import StringIO
@@ -96,7 +98,26 @@ def test_format_pal_emptyargv():
 def test_usage():
     assert(lib_users.usage() == None)
 
-def test_IOError():
-    lib_users.PROCFS="/DOESNOTEXIST"
+#def test_mainprog():
+#    # main() doesn't return anything, we only test for exceptions
+#    assert(lib_users.main() == None)
+
+def test_IOError_perm():
+    if os.geteuid() == 0:
+        raise SkipTest
+    lib_users.PROCFSPAT="/proc/1/mem"
     # main() doesn't return anything, we only test for exceptions
     assert(lib_users.main() == None)
+
+def test_IOError_nonexist():
+    lib_users.PROCFSPAT="/DOESNOTEXIST"
+    # main() doesn't return anything, we only test for exceptions
+    assert(lib_users.main() == None)
+
+def test_givenlist():
+    def mock_get_deleted_libs(mapsfile):
+        return(["foo"])
+    lib_users.get_deleted_libs=mock_get_deleted_libs
+    lib_users.PROCFSPAT="*"
+    assert(lib_users.main() == None)
+
