@@ -42,7 +42,10 @@ def get_progargs(pid):
     """
     Get argv for a given PID and return it as a list
     """
-    argv = open("%s/%s/cmdline" % (PROCFSBASE, pid)).read()
+    try:
+        argv = open("%s/%s/cmdline" % (PROCFSBASE, pid)).read()
+    except IOError:
+        return None
     argv = argv.split('\x00')
     argv = [ e.strip() for e in argv ]
     return argv
@@ -82,10 +85,11 @@ def main(verbose_mode=False):
             
         deletedlibs = get_deleted_libs(mapsfile)
         if len(deletedlibs) > 0:
-            try:
-                argv = get_progargs(pid)
-            except IOError:
-                argv = ["(unknown)"]
+            argv = get_progargs(pid)
+            if not argv:
+                # The proc file went away, so we need to skip it
+                # entirely
+                continue
             pal = format_pal(argv, pid, deletedlibs, verbose=verbose_mode)
             DELUSERS.append(pal)
 
