@@ -6,14 +6,36 @@ Test suite for lib_users
 
 import sys
 import os
+import locale
 
 import lib_users
 
 from cStringIO import StringIO
 
+# Some tests use sort() - make sure the sorting is the same regardless of
+# the users environment
+locale.setlocale(locale.LC_ALL, "POSIX")
+
 def test_nonlibs():
-    F=StringIO("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /SYSV00000000 (deleted)""")
-    assert(lib_users.get_deleted_libs(F) == [])
+    F=[]
+    F.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /SYSV00000000 (deleted)""")
+    F.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /dev/zero (deleted)""")
+    F.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /dev/shm/foo (deleted)""")
+    F.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /drm (deleted)""")
+    F=StringIO("\n".join(F))
+    res = lib_users.get_deleted_libs(F)
+    assert(res == [])
+
+def test_libs_with_patterns():
+    F=[]
+    F.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/SYSV00000000 (deleted)""")
+    F.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/dev/zero (deleted)""")
+    F.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/dev/shm/foo (deleted)""")
+    F.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/drm (deleted)""")
+    F=StringIO("\n".join(F))
+    res = lib_users.get_deleted_libs(F)
+    res.sort()
+    assert(res == ['/lib/SYSV00000000', '/lib/dev/shm/foo', '/lib/dev/zero', '/lib/drm'])
 
 def test_findlibs():
     F=StringIO("""7f02a85f1000-7f02a85f2000 rw-p 0000c000 09:01 32642 /lib64/libfindme.so (deleted)""")
