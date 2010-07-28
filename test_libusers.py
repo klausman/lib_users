@@ -75,8 +75,6 @@ def test_usage():
     assert(lib_users.usage() == None)
 
 def test_IOError():
-    class FileMock:
-        def readlines(self):
-            raise IOError
-    F=FileMock()
-    assert(lib_users.get_deleted_libs(F) == [])
+    lib_users.PROCFS="/DOESNOTEXIST"
+    # main() doesn't return anything, we only test for exceptions
+    assert(lib_users.main() == None)
