@@ -26,13 +26,7 @@ def get_deleted_libs(map_file):
     """
     deletedlibs = []
 
-    try:
-        maps = map_file.readlines()
-    except IOError:
-        # File is gone or not readable, so we can only return []
-        return(deletedlibs)
-
-    for line in maps:
+    for line in map_file:
         line = line.strip()
         if line.endswith("(deleted)"):
             lib = line.split()[-2]
@@ -71,10 +65,15 @@ def format_pal(argv, pid, deletedlibs, verbose=False):
 def main(verbose_mode=False):
     """Main program"""
     all_map_files = glob.glob(PROCFS+"/*/maps")
-    for maps_filename in all_map_files:
-        pid = normpath(maps_filename).split("/")[2]
+    for map_filename in all_map_files:
+        pid = normpath(map_filename).split("/")[2]
 
-        mapsfile = open(maps_filename)
+        try:
+            mapsfile = open(map_filename)
+        except IOError:
+            # The file is unreadable for us, so skip it silently
+            continue
+            
         deletedlibs = get_deleted_libs(mapsfile)
 
         if len(deletedlibs) > 0:
