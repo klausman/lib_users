@@ -15,7 +15,7 @@ from os.path import normpath
 PROCFSPAT = "/proc/*/maps"
 PROCFSBASE = "/proc/"
 DELUSERS = []
-__version__ = "0.1"
+__version__ = "0.2"
 __revision__ = "$Revision$".split()[1]
 
 # These are no true libs so don't make our process a deleted libs user
