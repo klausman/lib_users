@@ -11,12 +11,11 @@ import glob
 import fnmatch
 
 from os.path import normpath
+from collections import defaultdict
 
 PROCFSPAT = "/proc/*/maps"
 PROCFSBASE = "/proc/"
-DELUSERS = []
 __version__ = "0.2"
-__revision__ = "$Revision$".split()[1]
 
 # These are no true libs so don't make our process a deleted libs user
 NOLIBS = ["/SYSV*", "/dev/zero", "/dev/shm/*", "/drm"]
@@ -48,34 +47,20 @@ def get_progargs(pid):
         return None
     argv = argv.split('\x00')
     argv = [ e.strip() for e in argv ]
+    argv = " ".join(argv)
     return argv
-
-def format_pal(argv, pid, deletedlibs, verbose=False):
-    """
-    Format pid, argv and library list into a nice format, also shortening the
-    lib list if verbose is False and return it as a string
-
-    """
-    pidargs = "(%s) \"%s\"" % (pid, " ".join(argv))
-
-    if len(deletedlibs) > 1 and verbose == False:
-        ellipsis = "(+%s more)" % (len(deletedlibs)-1)
-        deletedlibs = deletedlibs[:1]
-        deletedlibs.append(ellipsis)
-    pal = pidargs + " uses: " + " ".join(deletedlibs)
-
-    return pal
 
 def main(verbose_mode=False):
     """Main program"""
     all_map_files = glob.glob(PROCFSPAT)
+    users = defaultdict(list)
     for map_filename in all_map_files:
         try:
             pid = normpath(map_filename).split("/")[2]
         except IndexError:
             # This happens if the filenames look different
             # than we expect (e.g. the user changed PROCFSPAT)
-            pid= "unknown"
+            pid = "unknown"
 
         try:
             mapsfile = open(map_filename)
@@ -90,19 +75,23 @@ def main(verbose_mode=False):
                 # The proc file went away, so we need to skip it
                 # entirely
                 continue
-            pal = format_pal(argv, pid, deletedlibs, verbose=verbose_mode)
-            DELUSERS.append(pal)
+            users[argv].append(pid)
 
-    if len(DELUSERS)>0:
-        print "\n".join(DELUSERS)
+    if len(users)>0:
+        for user, pids in users.iteritems():
+            if len(pids)<5 or verbose_mode:
+                print("{%s} %s" % (",".join(pids), user))
+            else:
+                print("(%s processes) %s" % (len(pids), user))
+        
 
 def usage():
     """Output usage info"""
-    print "Lib_users version %s (Rev. %s)" % (__version__, __revision__)
+    print "Lib_users version %s" % (__version__)
     print
     print "Usage: %s -[vh] --[help|verbose]" % (sys.argv[0])
     print "   -h, --help    - This text"
-    print "   -v, --verbose - Print all deleted libs."
+    print "   -v, --verbose - Print all PIDs, even if more than five."
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] in ["-h", "--help"]:
