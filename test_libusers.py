@@ -67,34 +67,6 @@ def test_progargs_int():
     PID=os.getpid()
     assert(len(lib_users.get_progargs(PID)) > 0)
 
-def test_format_pal():
-    ret=lib_users.format_pal(["ls", "foo"], 666, ["libdel", "librm"])
-    assert(ret == "(666) \"ls foo\" uses: libdel (+1 more)")
-
-def test_format_pal_explterse():
-    ret=lib_users.format_pal(["ls", "foo"], 666, ["libdel", "librm"], verbose=False)
-    assert(ret == "(666) \"ls foo\" uses: libdel (+1 more)")
-
-def test_format_pal_verbose():
-    ret=lib_users.format_pal(["ls", "foo"], 666, ["libdel", "librm"], verbose=True)
-    assert(ret == "(666) \"ls foo\" uses: libdel librm")
-
-def test_format_pal_strpid():
-    ret=lib_users.format_pal(["ls", "foo"], "666", ["libdel", "librm"], verbose=True)
-    assert(ret == "(666) \"ls foo\" uses: libdel librm")
-
-def test_format_pal_emptyll():
-    ret=lib_users.format_pal(["ls", "foo"], "666", [], verbose=True)
-    assert(ret == "(666) \"ls foo\" uses: ")
-
-def test_format_pal_noargs():
-    ret=lib_users.format_pal(["ls"], 666, ["libdel", "librm"])
-    assert(ret == "(666) \"ls\" uses: libdel (+1 more)")
-
-def test_format_pal_emptyargv():
-    ret=lib_users.format_pal([], 666, ["libdel", "librm"])
-    assert(ret == "(666) \"\" uses: libdel (+1 more)")
-
 def test_usage():
     assert(lib_users.usage() == None)
 
