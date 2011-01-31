@@ -9,16 +9,13 @@ presented to the user so that those processes can be restarted.
 The reason to do this is that after an update, you might end up with processes
 that run for a long time and still use old libraries. In some cases this might
 be a security problem, as the library may be vulnerable. The script displays
-the first two elements of a program's argv, so that the user can determine the
-actuall app that runs in the cases of Perl or Python scripts. In some cases,
-that might not be enough, so it also displays the PID. One of the cases are
-scripts running with extra args for the interpreter, for example a command
-line like "python -O foo.py".
+all the distinct argument lists of processes that have deleted files mapped.
+In essence, you get a list of processes and their PIDs. The reason why not 
+just the first elemnt of the argument list is presented is that for scripts,
+this will always be the interpreter name (i.e. "perl", "python" etc.) which is 
+not useful by itself.
 
-The script normally only displays the first vulnerable library so as to not
-clutter the display too much. If Lib_users is run with -v or --verbose as a
-command lien argument, it will print all deleted files that the process has
-mapped.
+If the number of processes is larger than five, only a count of processes will be displayed, the display of PIDs can be forced by useing -v or --verbose.
 
 The script cleans up the list from /proc/<pid>/maps to not display false
 positives - some programs have a pseudo file called /SYSxxxx mapped which
@@ -40,16 +37,14 @@ Limitations
 The program quite probably only works on Linux (or, at least, only on systems
 that have the same maps file structure as a Linux system). 
 
-As outlined above, long command lines might make it non-obvious what the
-actual running script is. Hence, the PID is always included.
-
 There might be other false positives than the one included, feel free to send
 me test cases (i.e. the maps file that triggers wrong behaviour), so I can fix
 it in future versions.
 
 If the script is not run as root, it can not display all processes on the 
 system that use deleted libs. In the spirit of graceful degradation, it will
-then only display the information for processes it has access to.
+then only display the information for processes it has access to. Usually this
+is the list of processes owned by the user that runs lib_users.
 
 License
 ======= 
