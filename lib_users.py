@@ -22,18 +22,18 @@ NOLIBS = ["/SYSV*", "/dev/zero", "/dev/shm/*", "/drm"]
 
 def get_deleted_libs(map_file):
     """
-    Get all deleted libs from a given map file and return them as a list
+    Get all deleted libs from a given map file and return them as a set
     """
-    deletedlibs = []
+    deletedlibs = set()
 
     for line in map_file:
         line = line.strip()
         if line.endswith("(deleted)"):
             lib = line.split()[-2]
-            is_lib = all(not fnmatch.fnmatch(lib, pattern) 
+            is_lib = all(not fnmatch.fnmatch(lib, pattern)
                          for pattern in NOLIBS)
             if is_lib and lib not in deletedlibs:
-                deletedlibs.append(lib)
+                deletedlibs.add(lib)
 
     return deletedlibs
 
@@ -50,10 +50,49 @@ def get_progargs(pid):
     argv = " ".join(argv)
     return argv
 
-def main(verbose_mode=False):
+def fmt_human(lib_users):
+    """
+    Format a list of library users into a human-readable table
+
+    Args:
+     lib_users: Dict of library users, keys are argvs (as string), values are
+     tuples of two sets, first listing the libraries used, second listing the
+     PIDs: { argv: ({pid, pid, ...}, {lib, lib, ...}), argv: ... }
+    Returns:
+     A multiline string for human consumption
+    """
+    # Usually, users don't care about what libs exactly are used
+    res = []
+    for argv, pidslibs in lib_users.iteritems():
+        pidlist =  ",".join(sorted(list(pidslibs[0])))
+        res.append("%s \"%s\"" % (pidlist, argv.strip()))
+    return "\n".join(res)
+
+def fmt_machine(lib_users):
+    """
+    Format a list of library users into a machine-readable table
+
+    Args:
+     lib_users: Dict of library users, keys are argvs (as string), values are
+     tuples of two sets, first listing the libraries used, second listing the
+     PIDs: { argv: ({lib, lib, ...}, {pid, pid, ...}), argv: ... }
+    Returns:
+     A multiline string for machine consumption
+    """
+    # Usually, users don't care about what libs exactly are used
+    res = []
+    for argv, pidslibs in lib_users.iteritems():
+        pidlist = ",".join(sorted(pidslibs[0]))
+        libslist = ",".join(sorted(pidslibs[1]))
+        res.append("%s;%s;%s" % (pidlist, libslist, argv.strip()))
+    return "\n".join(res)
+
+
+def main(machine_mode=False):
     """Main program"""
     all_map_files = glob.glob(PROCFSPAT)
-    users = defaultdict(list)
+    users = {}
+    users = defaultdict(lambda: (set(), set()))
     for map_filename in all_map_files:
         try:
             pid = normpath(map_filename).split("/")[2]
@@ -67,23 +106,21 @@ def main(verbose_mode=False):
         except IOError:
             # The file is unreadable for us, so skip it silently
             continue
-            
+
         deletedlibs = get_deleted_libs(mapsfile)
         if len(deletedlibs) > 0:
             argv = get_progargs(pid)
             if not argv:
-                # The proc file went away, so we need to skip it
-                # entirely
                 continue
-            users[argv].append(pid)
+            users[argv][0].add(pid)
+            users[argv][1].update(deletedlibs)
 
     if len(users)>0:
-        for user, pids in users.iteritems():
-            if len(pids)<5 or verbose_mode:
-                print("{%s} %s" % (",".join(pids), user))
-            else:
-                print("(%s processes) %s" % (len(pids), user))
-        
+        if machine_mode:
+            print fmt_machine(users)
+        else:
+            print fmt_human(users)
+
 
 def usage():
     """Output usage info"""
@@ -91,13 +128,14 @@ def usage():
     print
     print "Usage: %s -[vh] --[help|verbose]" % (sys.argv[0])
     print "   -h, --help    - This text"
-    print "   -v, --verbose - Print all PIDs, even if more than five."
+    print "   -m, --machine - Output machine readable info"
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] in ["-h", "--help"]:
         usage()
         sys.exit(0)
-    elif len(sys.argv) > 1 and sys.argv[1] in ["-v", "--verbose"]:
+    elif len(sys.argv) > 1 and sys.argv[1] in ["-m", "--machine"]:
         main(True)
     else:
         main()
