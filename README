@@ -10,16 +10,41 @@ The reason to do this is that after an update, you might end up with processes
 that run for a long time and still use old libraries. In some cases this might
 be a security problem, as the library may be vulnerable. The script displays
 all the distinct argument lists of processes that have deleted files mapped.
-In essence, you get a list of processes and their PIDs. The reason why not 
+In essence, you get a list of processes and their PIDs. The reason why not
 just the first elemnt of the argument list is presented is that for scripts,
-this will always be the interpreter name (i.e. "perl", "python" etc.) which is 
+this will always be the interpreter name (i.e. "perl", "python" etc.) which is
 not useful by itself.
-
-If the number of processes is larger than five, only a count of processes will be displayed, the display of PIDs can be forced by useing -v or --verbose.
 
 The script cleans up the list from /proc/<pid>/maps to not display false
 positives - some programs have a pseudo file called /SYSxxxx mapped which
 obviously is not a library that was updated.
+
+Output formats
+==============
+
+Lib_users supports two output formats, human- and machine-readable:
+
+human-readable:
+16341 "supervising syslog-ng"
+16342 "/usr/sbin/syslog-ng"
+27550 "/usr/sbin/exim -bd -q15m"
+12451,16244,16249,16252,16253,16254,26931,28912,29631,8810,894 "/usr/sbin/apache2 -D DEFAULT_VHOST -D INFO -D LANGUAGE -D DAV -D SVN -D MAILMAN -D PHP5 -D USERDIR -D SVN_AUTHZ -D SUEXEC -D SSL -D SSL_DEFAULT_VHOST -D AUTH_DIGEST -D PERL -d /usr/lib64/apache2 -f /etc/apache2/httpd.conf -k start"
+
+Here, the first column is a comma-seperated list of PIDs that share the same
+command line. The second column is the command line in quotation marks.
+
+machine-readable:
+16341;/lib64/libpcre.so.0.0.1;supervising syslog-ng
+16342;/lib64/libpcre.so.0.0.1;/usr/sbin/syslog-ng
+27550;/lib64/libpcre.so.0.0.1,/usr/sbin/exim;/usr/sbin/exim -bd -q15m
+12451,16244,16249,16252,16253,16254,26931,28912,29631,8810,894;/lib64/libpcre.so.0.0.1;/usr/sbin/apache2 -D DEFAULT_VHOST -D INFO -D LANGUAGE -D DAV -D SVN -D MAILMAN -D PHP5 -D USERDIR -D SVN_AUTHZ -D SUEXEC -D SSL -D SSL_DEFAULT_VHOST -D AUTH_DIGEST -D PERL -d /usr/lib64/apache2 -f /etc/apache2/httpd.conf -k start
+
+With the -m commandline parameter changes to this form:
+<list of PIDs>;<list of deleted mapped files>;<command line>
+
+The lists are made up of comma-separated values. There are no provisions taken
+for the case of one of the libraries contain a ",". The command line is also
+not altered in any way. This may be fixed in a future version.
 
 Dependencies
 ============
@@ -35,19 +60,19 @@ Limitations
 ===========
 
 The program quite probably only works on Linux (or, at least, only on systems
-that have the same maps file structure as a Linux system). 
+that have the same maps file structure as a Linux system).
 
 There might be other false positives than the one included, feel free to send
 me test cases (i.e. the maps file that triggers wrong behaviour), so I can fix
 it in future versions.
 
-If the script is not run as root, it can not display all processes on the 
+If the script is not run as root, it can not display all processes on the
 system that use deleted libs. In the spirit of graceful degradation, it will
 then only display the information for processes it has access to. Usually this
 is the list of processes owned by the user that runs lib_users.
 
 License
-======= 
+=======
 
 This program is released under the GPL-2, which is included in distributions
 of this script as the file COPYING. If you want to use it for something that
