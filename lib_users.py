@@ -15,7 +15,7 @@ from collections import defaultdict
 
 PROCFSPAT = "/proc/*/maps"
 PROCFSBASE = "/proc/"
-__version__ = "0.2"
+__version__ = "0.3"
 
 # These are no true libs so don't make our process a deleted libs user
 NOLIBS = ["/SYSV*", "/dev/zero", "/dev/shm/*", "/drm"]
