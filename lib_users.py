@@ -17,7 +17,11 @@ PROCFSPAT = "/proc/*/maps"
 PROCFSBASE = "/proc/"
 PERMWARNING = """\
 Warning: Some files could not be read. Note that lib_users has to be run as
+<<<<<<< HEAD
 root to get a full list of deleted in-use libraries."""
+=======
+root to get a full list of deleted in-use libraries.\n"""
+>>>>>>> master
 __version__ = "0.4"
 
 # These are no true libs so don't make our process a deleted libs user
@@ -124,22 +128,22 @@ def main(machine_mode=False):
             users[argv][1].update(deletedlibs)
 
     if read_failure:
-        sys.stderr.write(PERMWARNING) 
+        sys.stderr.write(PERMWARNING)
 
     if len(users)>0:
         if machine_mode:
-            print fmt_machine(users)
+            print(fmt_machine(users))
         else:
-            print fmt_human(users)
+            print(fmt_human(users))
 
 
 def usage():
     """Output usage info"""
-    print "Lib_users version %s" % (__version__)
-    print
-    print "Usage: %s -[vh] --[help|verbose]" % (sys.argv[0])
-    print "   -h, --help    - This text"
-    print "   -m, --machine - Output machine readable info"
+    print("Lib_users version %s" % (__version__))
+    print()
+    print("Usage: %s -[hm] --[help|machine]" % (sys.argv[0]))
+    print("   -h, --help    - This text")
+    print("   -m, --machine - Output machine readable info")
 
 
 if __name__ == "__main__":

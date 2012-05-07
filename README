@@ -62,14 +62,28 @@ Limitations
 The program quite probably only works on Linux (or, at least, only on systems
 that have the same maps file structure as a Linux system).
 
-There might be other false positives than the one included, feel free to send
-me test cases (i.e. the maps file that triggers wrong behaviour), so I can fix
-it in future versions.
-
 If the script is not run as root, it can not display all processes on the
 system that use deleted libs. In the spirit of graceful degradation, it will
 then only display the information for processes it has access to. Usually this
-is the list of processes owned by the user that runs lib_users.
+is the list of processes owned by the user that runs lib_users. It will also
+output a warning to stderr that it could not read all map files.
+
+False positives
+===============
+
+Some programs open temporary files and immediately delete them. This is done 
+they don't leave those files behind after a crash. As a consequence, lib_users
+may report these programs. A notable example are programs that use liborc, the 
+Oil Runtime Compiler. Here's an example, the media player quodlibet:
+
+# lib_users 
+2753 "/usr/bin/python2.7 /usr/bin/quodlibet"
+# grep deleted /proc/2753/maps 
+7f409dd0b000-7f409dd1b000 rw-s 00000000 08:01 1179661 /tmp/orcexec.sqa9cE (deleted)
+
+The file /tmp/orcexec.sqa9cE is output from the aforementioned compiler. These
+processes/files can be safely ignored. In fact, restarting quodlibet will just 
+result in a different liborc tempfile show up as deleted.
 
 License
 =======
