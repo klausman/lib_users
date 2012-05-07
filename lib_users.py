@@ -136,7 +136,7 @@ def main(machine_mode=False):
 def usage():
     """Output usage info"""
     print("Lib_users version %s" % (__version__))
-    print()
+    print("")
     print("Usage: %s -[hm] --[help|machine]" % (sys.argv[0]))
     print("   -h, --help    - This text")
     print("   -m, --machine - Output machine readable info")
