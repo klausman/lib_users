@@ -17,8 +17,8 @@ PROCFSPAT = "/proc/*/maps"
 PROCFSBASE = "/proc/"
 PERMWARNING = """\
 Warning: Some files could not be read. Note that lib_users has to be run as
-root to get a full list of deleted in-use libraries."""
-__version__ = "0.4"
+root to get a full list of deleted in-use libraries.\n"""
+__version__ = "0.5"
 
 # These are no true libs so don't make our process a deleted libs user
 NOLIBS = ["/SYSV*", "/dev/zero", "/dev/shm/*", "/drm"]
