@@ -15,7 +15,10 @@ from collections import defaultdict
 
 PROCFSPAT = "/proc/*/maps"
 PROCFSBASE = "/proc/"
-__version__ = "0.3"
+PERMWARNING = """\
+Warning: Some files could not be read. Note that lib_users has to be run as
+root to get a full list of deleted in-use libraries.\n"""
+__version__ = "0.4"
 
 # These are no true libs so don't make our process a deleted libs user
 NOLIBS = ["/SYSV*", "/dev/zero", "/dev/shm/*", "/drm"]
@@ -93,6 +96,7 @@ def main(machine_mode=False):
     all_map_files = glob.glob(PROCFSPAT)
     users = {}
     users = defaultdict(lambda: (set(), set()))
+    read_failure = False
     for map_filename in all_map_files:
         try:
             pid = normpath(map_filename).split("/")[2]
@@ -107,7 +111,11 @@ def main(machine_mode=False):
             # The file is unreadable for us, so skip it silently
             continue
 
-        deletedlibs = get_deleted_libs(mapsfile)
+        try:
+            deletedlibs = get_deleted_libs(mapsfile)
+        except IOError:
+            read_failure = True
+
         if len(deletedlibs) > 0:
             argv = get_progargs(pid)
             if not argv:
@@ -115,20 +123,23 @@ def main(machine_mode=False):
             users[argv][0].add(pid)
             users[argv][1].update(deletedlibs)
 
+    if read_failure:
+        sys.stderr.write(PERMWARNING)
+
     if len(users)>0:
         if machine_mode:
-            print fmt_machine(users)
+            print(fmt_machine(users))
         else:
-            print fmt_human(users)
+            print(fmt_human(users))
 
 
 def usage():
     """Output usage info"""
-    print "Lib_users version %s" % (__version__)
-    print
-    print "Usage: %s -[vh] --[help|verbose]" % (sys.argv[0])
-    print "   -h, --help    - This text"
-    print "   -m, --machine - Output machine readable info"
+    print("Lib_users version %s" % (__version__))
+    print()
+    print("Usage: %s -[hm] --[help|machine]" % (sys.argv[0]))
+    print("   -h, --help    - This text")
+    print("   -m, --machine - Output machine readable info")
 
 
 if __name__ == "__main__":
