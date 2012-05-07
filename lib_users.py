@@ -115,6 +115,7 @@ def main(machine_mode=False):
             deletedlibs = get_deleted_libs(mapsfile)
         except IOError:
             read_failure = True
+            continue
 
         if len(deletedlibs) > 0:
             argv = get_progargs(pid)
