@@ -54,7 +54,9 @@ Python 3. It only uses modules from Pythons standard library, so apart from a
 Python installation, there are no external dependencies.
 
 If you want to run the test suite easily, install the nose Python testing
-framework. This is not needed for day-to-day operations.
+framework. If you want to run the test suite on Python <3, you will also need
+the unittest module (it is part of the Py3 stdlib). This is not needed for
+day-to-day operations.
 
 Limitations
 ===========
