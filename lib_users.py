@@ -76,7 +76,7 @@ def fmt_human(lib_users):
     """
     # Usually, users don't care about what libs exactly are used
     res = []
-    for argv, pidslibs in lib_users.iteritems():
+    for argv, pidslibs in lib_users.items():
         pidlist =  ",".join(sorted(list(pidslibs[0])))
         res.append("%s \"%s\"" % (pidlist, argv.strip()))
     return "\n".join(res)
@@ -94,7 +94,7 @@ def fmt_machine(lib_users):
     """
     # Usually, users don't care about what libs exactly are used
     res = []
-    for argv, pidslibs in lib_users.iteritems():
+    for argv, pidslibs in lib_users.items():
         pidlist = ",".join(sorted(pidslibs[0]))
         libslist = ",".join(sorted(pidslibs[1]))
         res.append("%s;%s;%s" % (pidlist, libslist, argv.strip()))

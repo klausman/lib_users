@@ -49,9 +49,9 @@ not altered in any way. This may be fixed in a future version.
 Dependencies
 ============
 
-The script requires Python 2.5 or higher but is not (yet) compatible with
-Python 3. It only uses modules from Pythons standard library, so apart from a
-Python installation, there are no external dependencies.
+The script requires Python 2.5 or higher and should work with Python 3. It only
+uses modules from Pythons standard library, so apart from a Python
+installation, there are no external dependencies.
 
 If you want to run the test suite easily, install the nose Python testing
 framework. If you want to run the test suite on Python <3, you will also need
