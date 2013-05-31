@@ -31,12 +31,22 @@ def get_deleted_libs(map_file):
 
     for line in map_file:
         line = line.strip()
+        # Normal Linux maps file
         if line.endswith("(deleted)"):
             lib = line.split()[-2]
             is_lib = all(not fnmatch.fnmatch(lib, pattern)
                          for pattern in NOLIBS)
             if is_lib and lib not in deletedlibs:
                 deletedlibs.add(lib)
+
+        # OpenVZ maps file
+        elif line.split()[-1].startswith("(deleted)"):
+            lib = line.split()[-1][9:]
+            is_lib = all(not fnmatch.fnmatch(lib, pattern)
+                         for pattern in NOLIBS)
+            if is_lib and lib not in deletedlibs:
+                deletedlibs.add(lib)
+
 
     return deletedlibs
 

@@ -31,7 +31,7 @@ class Testlibusers(unittest.TestCase):
         pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /dev/shm/foo (deleted)""")
         pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /drm (deleted)""")
         pseudofile = StringIO("\n".join(pseudofile))
-        res  =  lib_users.get_deleted_libs(pseudofile)
+        res = lib_users.get_deleted_libs(pseudofile)
         self.assertTrue(res==EMPTYSET)
 
     def test_libs_with_patterns(self):
@@ -42,34 +42,45 @@ class Testlibusers(unittest.TestCase):
         pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/dev/shm/foo (deleted)""")
         pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/drm (deleted)""")
         pseudofile = StringIO("\n".join(pseudofile))
-        res  =  list(lib_users.get_deleted_libs(pseudofile))
+        res = list(lib_users.get_deleted_libs(pseudofile))
         res.sort()
         self.assertTrue(res==['/lib/SYSV00000000', '/lib/dev/shm/foo', '/lib/dev/zero', '/lib/drm'])
+
+    def test_openvz_maps(self):
+        testdata = open("testdata/openvz-maps").read()
+        pseudofile = StringIO(testdata)
+        res = lib_users.get_deleted_libs(pseudofile)
+        expected = {'/var/tmp/portage/dev-libs/lzo-2.06/image/usr/lib64/liblzo2.so.2.0.0', 
+                    '/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libc-2.15.so', 
+                    '/var/tmp/portage/net-misc/openvpn-2.3.1/image/usr/sbin/openvpn', 
+                    '/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libdl-2.15.so', 
+                    '/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/ld-2.15.so'}
+        self.assertEquals(res, expected)
 
     def test_findlibs(self):
         """Test detection of "classic" lib name"""
         pseudofile = StringIO("""7f02a85f1000-7f02a85f2000 rw-p 0000c000 09:01 32642 /lib64/libfindme.so (deleted)""")
-        self.assertTrue(lib_users.get_deleted_libs(pseudofile)==set(["/lib64/libfindme.so"]))
+        self.assertEquals(lib_users.get_deleted_libs(pseudofile), set(["/lib64/libfindme.so"]))
 
     def test_libplainnames(self):
         """Test detection of wrong order of fields"""
         pseudofile = StringIO("""7f02a85fc000-7f02a87fb000 ---p 0000a000 09:01 32647 (deleted) /lib64/libdontfindme.so""")
-        self.assertTrue(lib_users.get_deleted_libs(pseudofile)==EMPTYSET)
+        self.assertEquals(lib_users.get_deleted_libs(pseudofile), EMPTYSET)
 
     def test_parennames(self):
         """Test detection of libraries with embedded special strings"""
         pseudofile = StringIO("""7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 /lib64/libdontfindmeeither_(deleted)i-2.11.2.so""")
-        self.assertTrue(lib_users.get_deleted_libs(pseudofile)==EMPTYSET)
+        self.assertEquals(lib_users.get_deleted_libs(pseudofile), EMPTYSET)
 
     def test_parenwcontent(self):
         """Test detection of superstrings of special strings"""
         pseudofile = StringIO("""7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 /lib64/libdontfindmeeither-2.11.2.so (notdeleted)""")
-        self.assertTrue(lib_users.get_deleted_libs(pseudofile)==EMPTYSET)
+        self.assertEquals(lib_users.get_deleted_libs(pseudofile), EMPTYSET)
 
     def test_parenwcontent2(self):
         """Test detection of substrings of special strings"""
         pseudofile = StringIO("""7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 /lib64/libdontfindmeeither-2.11.2.so (delete)""")
-        self.assertTrue(lib_users.get_deleted_libs(pseudofile)==EMPTYSET)
+        self.assertEquals(lib_users.get_deleted_libs(pseudofile), EMPTYSET)
 
     def test_progargs_str(self):
         """Test length of argv using string pid"""
@@ -83,7 +94,7 @@ class Testlibusers(unittest.TestCase):
 
     def test_usage(self):
         """Test usage() for Exceptions and retval"""
-        self.assertTrue(lib_users.usage() == None)
+        self.assertEquals(lib_users.usage(), None)
 
 # Input for these is { argv: ({pid, pid, ...}, {lib, lib, ...}), argv: ... }
     def test_fmt_human(self):
@@ -91,44 +102,51 @@ class Testlibusers(unittest.TestCase):
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
         outp = '1,2 "argv1"'
         print lib_users.fmt_human(inp)
-        self.assertTrue(lib_users.fmt_human(inp)==outp)
+        self.assertEquals(lib_users.fmt_human(inp), outp)
+        
         inp = {"argv1": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1"'
         print lib_users.fmt_human(inp)
-        self.assertTrue(lib_users.fmt_human(inp)==outp)
+        self.assertEquals(lib_users.fmt_human(inp), outp)
+
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1 argv2"'
         print lib_users.fmt_human(inp)
-        self.assertTrue(lib_users.fmt_human(inp)==outp)
+        self.assertEquals(lib_users.fmt_human(inp), outp)
+
         inp = {}
         outp = ''
         print lib_users.fmt_human(inp)
-        self.assertTrue(lib_users.fmt_human(inp)==outp)
+        self.assertEquals(lib_users.fmt_human(inp), outp)
 
     def test_fmt_machine(self):
         """Test function for machine-readable output"""
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
         outp = '1,2;l1,l2;argv1'
         print lib_users.fmt_machine(inp)
-        self.assertTrue(lib_users.fmt_machine(inp)==outp)
+        self.assertEquals(lib_users.fmt_machine(inp), outp)
+
         inp = {"argv1": (set(["1"]), set(["l1", "l2"]))}
         outp = '1;l1,l2;argv1'
         print lib_users.fmt_machine(inp)
-        self.assertTrue(lib_users.fmt_machine(inp)==outp)
+        self.assertEquals(lib_users.fmt_machine(inp), outp)
+
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1;l1,l2;argv1 argv2'
         print lib_users.fmt_machine(inp)
-        self.assertTrue(lib_users.fmt_machine(inp)==outp)
+        self.assertEquals(lib_users.fmt_machine(inp), outp)
+
         inp = {"argv1 argv2 ": (set(["1"]), set())}
         outp = '1;;argv1 argv2'
         print lib_users.fmt_machine(inp)
-        self.assertTrue(lib_users.fmt_machine(inp)==outp)
+        self.assertEquals(lib_users.fmt_machine(inp), outp)
+
         inp = {}
         outp = ''
         print lib_users.fmt_machine(inp)
-        self.assertTrue(lib_users.fmt_machine(inp)==outp)
+        self.assertEquals(lib_users.fmt_machine(inp), outp)
 
     def test_ioerror_perm(self):
         """Test detection of i -EPERM in /proc - works only as nonroot"""
@@ -136,16 +154,16 @@ class Testlibusers(unittest.TestCase):
             raise SkipTest
         lib_users.PROCFSPAT = "/proc/1/mem"
         # main() doesn't return anything, we only test for exceptions
-        self.assertTrue(lib_users.main() == None)
+        self.assertEquals(lib_users.main(), None)
 
     def test_ioerror_nonexist(self):
         """Test handling of IOError for nonexistant /proc files"""
         lib_users.PROCFSPAT = "/DOESNOTEXIST"
         # main() doesn't return anything, we only test for exceptions
-        self.assertTrue(lib_users.main() == None)
+        self.assertEquals(lib_users.main(), None)
 
     def test_inaccesible_proc(self):
-        self.assertTrue(lib_users.get_progargs("this is not a pid") == None)
+        self.assertEquals(lib_users.get_progargs("this is not a pid"), None)
 
 
 class Testlibuserswithmocks(unittest.TestCase):
@@ -179,17 +197,17 @@ class Testlibuserswithmocks(unittest.TestCase):
 
     def test_actual(self):
         """Test main() in machine mode"""
-        self.assertTrue(self.l_u.main(machine_mode=True) == None)
+        self.assertEquals(self.l_u.main(machine_mode=True), None)
 
     def test_actual2(self):
         """Test main() in human mode"""
-        self.assertTrue(self.l_u.main(machine_mode=False) == None)
+        self.assertEquals(self.l_u.main(machine_mode=False), None)
 
     def test_givenlist(self):
         """Test main() in default mode"""
-        self.assertTrue(self.l_u.main() == None)
+        self.assertEquals(self.l_u.main(), None)
     
     def test_givenlist(self):
         """Test main() in default mode"""
-        self.assertTrue(self.l_u.main() == None)
+        self.assertEquals(self.l_u.main(), None)
     
