@@ -1,0 +1,41 @@
+00400000-0048f000 r-xp 00000000 fd:00 16245                               (deleted)/var/tmp/portage/net-misc/openvpn-2.3.1/image/usr/sbin/openvpn
+0068e000-0068f000 r--p 0008e000 fd:00 16245                               (deleted)/var/tmp/portage/net-misc/openvpn-2.3.1/image/usr/sbin/openvpn
+0068f000-00690000 rw-p 0008f000 fd:00 16245                               (deleted)/var/tmp/portage/net-misc/openvpn-2.3.1/image/usr/sbin/openvpn
+01130000-01172000 rw-p 00000000 00:00 0 
+01172000-012ee000 rw-p 00000000 00:00 0 
+7fc5ee936000-7fc5ee94b000 r-xp 00000000 fd:00 377366                     /lib64/libz.so.1.2.7
+7fc5ee94b000-7fc5eeb4a000 ---p 00015000 fd:00 377366                     /lib64/libz.so.1.2.7
+7fc5eeb4a000-7fc5eeb4b000 r--p 00014000 fd:00 377366                     /lib64/libz.so.1.2.7
+7fc5eeb4b000-7fc5eeb4c000 rw-p 00015000 fd:00 377366                     /lib64/libz.so.1.2.7
+7fc5eeb4c000-7fc5eece6000 r-xp 00000000 fd:00 12856                       (deleted)/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libc-2.15.so
+7fc5eece6000-7fc5eeee6000 ---p 0019a000 fd:00 12856                       (deleted)/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libc-2.15.so
+7fc5eeee6000-7fc5eeeea000 r--p 0019a000 fd:00 12856                       (deleted)/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libc-2.15.so
+7fc5eeeea000-7fc5eeeec000 rw-p 0019e000 fd:00 12856                       (deleted)/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libc-2.15.so
+7fc5eeeec000-7fc5eeef0000 rw-p 00000000 00:00 0 
+7fc5eeef0000-7fc5eeef2000 r-xp 00000000 fd:00 12840                       (deleted)/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libdl-2.15.so
+7fc5eeef2000-7fc5ef0f2000 ---p 00002000 fd:00 12840                       (deleted)/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libdl-2.15.so
+7fc5ef0f2000-7fc5ef0f3000 r--p 00002000 fd:00 12840                       (deleted)/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libdl-2.15.so
+7fc5ef0f3000-7fc5ef0f4000 rw-p 00003000 fd:00 12840                       (deleted)/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libdl-2.15.so
+7fc5ef0f4000-7fc5ef2a0000 r-xp 00000000 fd:00 264853                     /usr/lib64/libcrypto.so.1.0.0
+7fc5ef2a0000-7fc5ef49f000 ---p 001ac000 fd:00 264853                     /usr/lib64/libcrypto.so.1.0.0
+7fc5ef49f000-7fc5ef4ba000 r--p 001ab000 fd:00 264853                     /usr/lib64/libcrypto.so.1.0.0
+7fc5ef4ba000-7fc5ef4c5000 rw-p 001c6000 fd:00 264853                     /usr/lib64/libcrypto.so.1.0.0
+7fc5ef4c5000-7fc5ef4c9000 rw-p 00000000 00:00 0 
+7fc5ef4c9000-7fc5ef528000 r-xp 00000000 fd:00 263359                     /usr/lib64/libssl.so.1.0.0
+7fc5ef528000-7fc5ef728000 ---p 0005f000 fd:00 263359                     /usr/lib64/libssl.so.1.0.0
+7fc5ef728000-7fc5ef72c000 r--p 0005f000 fd:00 263359                     /usr/lib64/libssl.so.1.0.0
+7fc5ef72c000-7fc5ef732000 rw-p 00063000 fd:00 263359                     /usr/lib64/libssl.so.1.0.0
+7fc5ef732000-7fc5ef733000 rw-p 00000000 00:00 0 
+7fc5ef733000-7fc5ef754000 r-xp 00000000 fd:00 16554                       (deleted)/var/tmp/portage/dev-libs/lzo-2.06/image/usr/lib64/liblzo2.so.2.0.0
+7fc5ef754000-7fc5ef953000 ---p 00021000 fd:00 16554                       (deleted)/var/tmp/portage/dev-libs/lzo-2.06/image/usr/lib64/liblzo2.so.2.0.0
+7fc5ef953000-7fc5ef954000 r--p 00020000 fd:00 16554                       (deleted)/var/tmp/portage/dev-libs/lzo-2.06/image/usr/lib64/liblzo2.so.2.0.0
+7fc5ef954000-7fc5ef955000 rw-p 00021000 fd:00 16554                       (deleted)/var/tmp/portage/dev-libs/lzo-2.06/image/usr/lib64/liblzo2.so.2.0.0
+7fc5ef955000-7fc5ef977000 r-xp 00000000 fd:00 12847                       (deleted)/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/ld-2.15.so
+7fc5efb1f000-7fc5efb65000 rw-p 00000000 00:00 0 
+7fc5efb75000-7fc5efb76000 rw-p 00000000 00:00 0 
+7fc5efb76000-7fc5efb77000 r--p 00021000 fd:00 12847                       (deleted)/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/ld-2.15.so
+7fc5efb77000-7fc5efb78000 rw-p 00022000 fd:00 12847                       (deleted)/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/ld-2.15.so
+7fc5efb78000-7fc5efb79000 rw-p 00000000 00:00 0 
+7fff7fe83000-7fff7fe98000 rw-p 00000000 00:00 0                          [stack]
+7fff7ff39000-7fff7ff3b000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
