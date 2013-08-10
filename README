@@ -31,7 +31,9 @@ human-readable:
 12451,16244,16249,16252,16253,16254,26931,28912,29631,8810,894 "/usr/sbin/apache2 -D DEFAULT_VHOST -D INFO -D LANGUAGE -D DAV -D SVN -D MAILMAN -D PHP5 -D USERDIR -D SVN_AUTHZ -D SUEXEC -D SSL -D SSL_DEFAULT_VHOST -D AUTH_DIGEST -D PERL -d /usr/lib64/apache2 -f /etc/apache2/httpd.conf -k start"
 
 Here, the first column is a comma-seperated list of PIDs that share the same
-command line. The second column is the command line in quotation marks.
+command line. The second column is the command line in quotation marks. If the 
+-s command line option is used, there will also be information about the names
+of the deleted files in use.
 
 machine-readable:
 16341;/lib64/libpcre.so.0.0.1;supervising syslog-ng
@@ -86,6 +88,9 @@ Oil Runtime Compiler. Here's an example, the media player quodlibet:
 The file /tmp/orcexec.sqa9cE is output from the aforementioned compiler. These
 processes/files can be safely ignored. In fact, restarting quodlibet will just 
 result in a different liborc tempfile show up as deleted.
+
+Using the -s command line option will show you which deleted files are in use, so
+you decide whether the listed process is a false positive.
 
 License
 =======
