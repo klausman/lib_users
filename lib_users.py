@@ -63,7 +63,7 @@ def get_progargs(pid):
     argv = " ".join(argv)
     return argv
 
-def fmt_human(lib_users):
+def fmt_human(lib_users, showlibs=False):
     """
     Format a list of library users into a human-readable table
 
@@ -78,7 +78,11 @@ def fmt_human(lib_users):
     res = []
     for argv, pidslibs in lib_users.items():
         pidlist =  ",".join(sorted(list(pidslibs[0])))
-        res.append("%s \"%s\"" % (pidlist, argv.strip()))
+        if showlibs:
+            libslist = ",".join(sorted(pidslibs[1]))
+            res.append("%s \"%s\" uses %s" % (pidlist, argv.strip(), libslist))
+        else:
+            res.append("%s \"%s\"" % (pidlist, argv.strip()))
     return "\n".join(res)
 
 def fmt_machine(lib_users):
@@ -101,7 +105,7 @@ def fmt_machine(lib_users):
     return "\n".join(res)
 
 
-def main(machine_mode=False):
+def main(machine_mode=False, showlibs=False):
     """Main program"""
     all_map_files = glob.glob(PROCFSPAT)
     users = {}
@@ -141,7 +145,7 @@ def main(machine_mode=False):
         if machine_mode:
             print(fmt_machine(users))
         else:
-            print(fmt_human(users))
+            print(fmt_human(users, showlibs))
 
 
 def usage():
@@ -149,15 +153,20 @@ def usage():
     print("Lib_users version %s" % (__version__))
     print("")
     print("Usage: %s -[hm] --[help|machine]" % (sys.argv[0]))
-    print("   -h, --help    - This text")
-    print("   -m, --machine - Output machine readable info")
-
+    print("   -h, --help     - This text")
+    print("   -m, --machine  - Output machine readable info")
+    print("   -s, --showlibs -"
+          "In human readable mode, how deleted libs in use.")
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] in ["-h", "--help"]:
+    argvset = set(sys.argv)
+    if set(("-h", "--help")).intersection(argvset):
         usage()
         sys.exit(0)
-    elif len(sys.argv) > 1 and sys.argv[1] in ["-m", "--machine"]:
-        main(True)
+    if set(("-m", "--machine")).intersection(argvset):
+        # We needn't care about -s here, since the format is static
+        main(True, False)
+    elif set(("-s", "--showlibs")).intersection(argvset):
+        main(False, True)
     else:
         main()

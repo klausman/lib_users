@@ -125,6 +125,29 @@ class Testlibusers(unittest.TestCase):
         print(lib_users.fmt_human(inp))
         self.assertEquals(lib_users.fmt_human(inp), outp)
 
+    def test_fmt_human_with_libs(self):
+        """Test function for human-readable output"""
+        inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
+        outp = '1,2 "argv1" uses l1,l2'
+        print(lib_users.fmt_human(inp))
+        self.assertEquals(lib_users.fmt_human(inp, True), outp)
+        
+        inp = {"argv1": (set(["1"]), set(["l1"]))}
+        outp = '1 "argv1" uses l1'
+        print(lib_users.fmt_human(inp))
+        self.assertEquals(lib_users.fmt_human(inp, True), outp)
+
+        # The space at the end of this argv should go away.
+        inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
+        outp = '1 "argv1 argv2" uses l1,l2'
+        print(lib_users.fmt_human(inp))
+        self.assertEquals(lib_users.fmt_human(inp, True), outp)
+
+        inp = {}
+        outp = ''
+        print(lib_users.fmt_human(inp))
+        self.assertEquals(lib_users.fmt_human(inp), outp)
+
     def test_fmt_machine(self):
         """Test function for machine-readable output"""
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
