@@ -62,6 +62,12 @@ class Testlibusers(unittest.TestCase):
                     '/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/ld-2.15.so'}
         self.assertEquals(res, expected)
 
+    def test_drm_mm_maps(self):
+        testdata = open("testdata/drm-mm-maps").read()
+        pseudofile = StringIO(testdata)
+        res = lib_users.get_deleted_libs(pseudofile)
+        self.assertEquals(res, EMPTYSET)
+
     def test_findlibs(self):
         """Test detection of "classic" lib name"""
         pseudofile = StringIO("""7f02a85f1000-7f02a85f2000 rw-p 0000c000 09:01 32642 /lib64/libfindme.so (deleted)""")

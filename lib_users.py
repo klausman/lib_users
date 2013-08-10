@@ -21,7 +21,7 @@ root to get a full list of deleted in-use libraries.\n"""
 __version__ = "0.6"
 
 # These are no true libs so don't make our process a deleted libs user
-NOLIBS = ["/SYSV*", "/dev/zero", "/dev/shm/*", "/drm"]
+NOLIBS = ["/SYSV*", "/dev/zero", "/dev/shm/*", "/drm", "object"]
 
 def get_deleted_libs(map_file):
     """
