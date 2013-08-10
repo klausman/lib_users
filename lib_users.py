@@ -155,8 +155,8 @@ def usage():
     print("Usage: %s -[hm] --[help|machine]" % (sys.argv[0]))
     print("   -h, --help     - This text")
     print("   -m, --machine  - Output machine readable info")
-    print("   -s, --showlibs -"
-          "In human readable mode, how deleted libs in use.")
+    print("   -s, --showlibs - "
+          "In human readable mode, show deleted libs in use.")
 
 if __name__ == "__main__":
     argvset = set(sys.argv)
