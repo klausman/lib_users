@@ -35,9 +35,10 @@ class Testlibusers(unittest.TestCase):
         pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /dev/zero (deleted)""")
         pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /dev/shm/foo (deleted)""")
         pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /drm (deleted)""")
+        pseudofile.append("""7fbb00535000-7fbb00556000 rw-s 00000000 00:0a 13493193 /[aio] (deleted)""")
         pseudofile = StringIO("\n".join(pseudofile))
         res = lib_users.get_deleted_libs(pseudofile)
-        self.assertTrue(res==EMPTYSET)
+        self.assertEquals(res, EMPTYSET)
 
     def test_libs_with_patterns(self):
         """Test detection of mappings that are libs but contain nonlib stuff"""
@@ -46,10 +47,11 @@ class Testlibusers(unittest.TestCase):
         pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/dev/zero (deleted)""")
         pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/dev/shm/foo (deleted)""")
         pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/drm (deleted)""")
+        pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/[aio] (deleted)""")
         pseudofile = StringIO("\n".join(pseudofile))
         res = list(lib_users.get_deleted_libs(pseudofile))
         res.sort()
-        self.assertTrue(res==['/lib/SYSV00000000', '/lib/dev/shm/foo', '/lib/dev/zero', '/lib/drm'])
+        self.assertEquals(res, ['/lib/SYSV00000000', '/lib/[aio]', '/lib/dev/shm/foo', '/lib/dev/zero', '/lib/drm'])
 
     def test_openvz_maps(self):
         testdata = open("testdata/openvz-maps").read()
@@ -96,12 +98,12 @@ class Testlibusers(unittest.TestCase):
     def test_progargs_str(self):
         """Test length of argv using string pid"""
         pid = str(os.getpid())
-        self.assertTrue(len(lib_users.get_progargs(pid)) > 0)
+        self.assertGreater(len(lib_users.get_progargs(pid)), 0)
 
     def test_progargs_int(self):
         """Test length of argv using integer pid"""
         pid = os.getpid()
-        self.assertTrue(len(lib_users.get_progargs(pid)) > 0)
+        self.assertGreater(len(lib_users.get_progargs(pid)), 0)
 
     def test_usage(self):
         """Test usage() for Exceptions and retval"""

@@ -21,7 +21,11 @@ root to get a full list of deleted in-use libraries.\n"""
 __version__ = "0.6"
 
 # These are no true libs so don't make our process a deleted libs user
-NOLIBS = ["/SYSV*", "/dev/zero", "/dev/shm/*", "/drm", "object"]
+# The first set is patterns, i.e. they are compared using fnmatch()
+# These are NOT regular expressions!
+NOLIBSPT = set(["/SYSV*", "/dev/shm/*", "/tmp/orcexec.*"])
+# This set is compared exaclty, i.e. no special characters
+NOLIBSNP = set(["/dev/zero", "/drm", "object", "/[aio]"])
 
 def get_deleted_libs(map_file):
     """
@@ -35,16 +39,16 @@ def get_deleted_libs(map_file):
         if line.endswith("(deleted)"):
             lib = line.split()[-2]
             is_lib = all(not fnmatch.fnmatch(lib, pattern)
-                         for pattern in NOLIBS)
-            if is_lib and lib not in deletedlibs:
+                         for pattern in NOLIBSPT)
+            if is_lib and lib not in NOLIBSNP:
                 deletedlibs.add(lib)
 
         # OpenVZ maps file
         elif line.split()[-1].startswith("(deleted)"):
             lib = line.split()[-1][9:]
             is_lib = all(not fnmatch.fnmatch(lib, pattern)
-                         for pattern in NOLIBS)
-            if is_lib and lib not in deletedlibs:
+                         for pattern in NOLIBSPT)
+            if is_lib and lib not in NOLIBSNP:
                 deletedlibs.add(lib)
 
 
