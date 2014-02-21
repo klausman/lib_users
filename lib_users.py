@@ -24,7 +24,7 @@ __version__ = "0.6"
 # The first set is patterns, i.e. they are compared using fnmatch()
 # These are NOT regular expressions!
 NOLIBSPT = set(["/SYSV*", "/dev/shm/*", "/tmp/orcexec.*"])
-# This set is compared exaclty, i.e. no special characters
+# This set is compared literally, i.e. no special characters
 NOLIBSNP = set(["/dev/zero", "/drm", "object", "/[aio]"])
 
 def get_deleted_libs(map_file):
