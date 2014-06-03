@@ -25,17 +25,24 @@ locale.setlocale(locale.LC_ALL, "POSIX")
 # Shorthand
 EMPTYSET = frozenset()
 
+
 class Testlibusers(unittest.TestCase):
+
     """Run tests that don't need mocks"""
 
     def test_nonlibs(self):
         """Test detection of mappings that aren't libs"""
         pseudofile = []
-        pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /SYSV00000000 (deleted)""")
-        pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /dev/zero (deleted)""")
-        pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /dev/shm/foo (deleted)""")
-        pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /drm (deleted)""")
-        pseudofile.append("""7fbb00535000-7fbb00556000 rw-s 00000000 00:0a 13493193 /[aio] (deleted)""")
+        pseudofile.append(
+            """7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /SYSV00000000 (deleted)""")
+        pseudofile.append(
+            """7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /dev/zero (deleted)""")
+        pseudofile.append(
+            """7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /dev/shm/foo (deleted)""")
+        pseudofile.append(
+            """7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /drm (deleted)""")
+        pseudofile.append(
+            """7fbb00535000-7fbb00556000 rw-s 00000000 00:0a 13493193 /[aio] (deleted)""")
         pseudofile = StringIO("\n".join(pseudofile))
         res = lib_users.get_deleted_libs(pseudofile)
         self.assertEquals(res, EMPTYSET)
@@ -43,24 +50,30 @@ class Testlibusers(unittest.TestCase):
     def test_libs_with_patterns(self):
         """Test detection of mappings that are libs but contain nonlib stuff"""
         pseudofile = []
-        pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/SYSV00000000 (deleted)""")
-        pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/dev/zero (deleted)""")
-        pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/dev/shm/foo (deleted)""")
-        pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/drm (deleted)""")
-        pseudofile.append("""7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/[aio] (deleted)""")
+        pseudofile.append(
+            """7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/SYSV00000000 (deleted)""")
+        pseudofile.append(
+            """7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/dev/zero (deleted)""")
+        pseudofile.append(
+            """7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/dev/shm/foo (deleted)""")
+        pseudofile.append(
+            """7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/drm (deleted)""")
+        pseudofile.append(
+            """7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 /lib/[aio] (deleted)""")
         pseudofile = StringIO("\n".join(pseudofile))
         res = list(lib_users.get_deleted_libs(pseudofile))
         res.sort()
-        self.assertEquals(res, ['/lib/SYSV00000000', '/lib/[aio]', '/lib/dev/shm/foo', '/lib/dev/zero', '/lib/drm'])
+        self.assertEquals(
+            res, ['/lib/SYSV00000000', '/lib/[aio]', '/lib/dev/shm/foo', '/lib/dev/zero', '/lib/drm'])
 
     def test_openvz_maps(self):
         testdata = open("testdata/openvz-maps").read()
         pseudofile = StringIO(testdata)
         res = lib_users.get_deleted_libs(pseudofile)
-        expected = {'/var/tmp/portage/dev-libs/lzo-2.06/image/usr/lib64/liblzo2.so.2.0.0', 
-                    '/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libc-2.15.so', 
-                    '/var/tmp/portage/net-misc/openvpn-2.3.1/image/usr/sbin/openvpn', 
-                    '/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libdl-2.15.so', 
+        expected = {'/var/tmp/portage/dev-libs/lzo-2.06/image/usr/lib64/liblzo2.so.2.0.0',
+                    '/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libc-2.15.so',
+                    '/var/tmp/portage/net-misc/openvpn-2.3.1/image/usr/sbin/openvpn',
+                    '/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/libdl-2.15.so',
                     '/var/tmp/portage/sys-libs/glibc-2.15-r3/image/lib64/ld-2.15.so'}
         self.assertEquals(res, expected)
 
@@ -72,27 +85,33 @@ class Testlibusers(unittest.TestCase):
 
     def test_findlibs(self):
         """Test detection of "classic" lib name"""
-        pseudofile = StringIO("""7f02a85f1000-7f02a85f2000 rw-p 0000c000 09:01 32642 /lib64/libfindme.so (deleted)""")
-        self.assertEquals(lib_users.get_deleted_libs(pseudofile), set(["/lib64/libfindme.so"]))
+        pseudofile = StringIO(
+            """7f02a85f1000-7f02a85f2000 rw-p 0000c000 09:01 32642 /lib64/libfindme.so (deleted)""")
+        self.assertEquals(
+            lib_users.get_deleted_libs(pseudofile), set(["/lib64/libfindme.so"]))
 
     def test_libplainnames(self):
         """Test detection of wrong order of fields"""
-        pseudofile = StringIO("""7f02a85fc000-7f02a87fb000 ---p 0000a000 09:01 32647 (deleted) /lib64/libdontfindme.so""")
+        pseudofile = StringIO(
+            """7f02a85fc000-7f02a87fb000 ---p 0000a000 09:01 32647 (deleted) /lib64/libdontfindme.so""")
         self.assertEquals(lib_users.get_deleted_libs(pseudofile), EMPTYSET)
 
     def test_parennames(self):
         """Test detection of libraries with embedded special strings"""
-        pseudofile = StringIO("""7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 /lib64/libdontfindmeeither_(deleted)i-2.11.2.so""")
+        pseudofile = StringIO(
+            """7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 /lib64/libdontfindmeeither_(deleted)i-2.11.2.so""")
         self.assertEquals(lib_users.get_deleted_libs(pseudofile), EMPTYSET)
 
     def test_parenwcontent(self):
         """Test detection of superstrings of special strings"""
-        pseudofile = StringIO("""7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 /lib64/libdontfindmeeither-2.11.2.so (notdeleted)""")
+        pseudofile = StringIO(
+            """7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 /lib64/libdontfindmeeither-2.11.2.so (notdeleted)""")
         self.assertEquals(lib_users.get_deleted_libs(pseudofile), EMPTYSET)
 
     def test_parenwcontent2(self):
         """Test detection of substrings of special strings"""
-        pseudofile = StringIO("""7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 /lib64/libdontfindmeeither-2.11.2.so (delete)""")
+        pseudofile = StringIO(
+            """7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 /lib64/libdontfindmeeither-2.11.2.so (delete)""")
         self.assertEquals(lib_users.get_deleted_libs(pseudofile), EMPTYSET)
 
     def test_progargs_str(self):
@@ -116,7 +135,7 @@ class Testlibusers(unittest.TestCase):
         outp = '1,2 "argv1"'
         print(lib_users.fmt_human(inp))
         self.assertEquals(lib_users.fmt_human(inp), outp)
-        
+
         inp = {"argv1": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1"'
         print(lib_users.fmt_human(inp))
@@ -139,7 +158,7 @@ class Testlibusers(unittest.TestCase):
         outp = '1,2 "argv1" uses l1,l2'
         print(lib_users.fmt_human(inp))
         self.assertEquals(lib_users.fmt_human(inp, True), outp)
-        
+
         inp = {"argv1": (set(["1"]), set(["l1"]))}
         outp = '1 "argv1" uses l1'
         print(lib_users.fmt_human(inp))
@@ -203,6 +222,7 @@ class Testlibusers(unittest.TestCase):
 
 
 class Testlibuserswithmocks(unittest.TestCase):
+
     """Run tests that don't need mocks"""
 
     def setUp(self):
@@ -242,8 +262,7 @@ class Testlibuserswithmocks(unittest.TestCase):
     def test_givenlist(self):
         """Test main() in default mode"""
         self.assertEquals(self.l_u.main(), None)
-    
+
     def test_givenlist(self):
         """Test main() in default mode"""
         self.assertEquals(self.l_u.main(), None)
-    

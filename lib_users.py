@@ -27,6 +27,7 @@ NOLIBSPT = set(["/SYSV*", "/dev/shm/*", "/tmp/orcexec.*"])
 # This set is compared literally, i.e. no special characters
 NOLIBSNP = set(["/dev/zero", "/drm", "object", "/[aio]"])
 
+
 def get_deleted_libs(map_file):
     """
     Get all deleted libs from a given map file and return them as a set
@@ -51,8 +52,8 @@ def get_deleted_libs(map_file):
             if is_lib and lib not in NOLIBSNP:
                 deletedlibs.add(lib)
 
-
     return deletedlibs
+
 
 def get_progargs(pid):
     """
@@ -63,9 +64,10 @@ def get_progargs(pid):
     except IOError:
         return None
     argv = argv.split('\x00')
-    argv = [ e.strip() for e in argv ]
+    argv = [e.strip() for e in argv]
     argv = " ".join(argv)
     return argv
+
 
 def fmt_human(lib_users, showlibs=False):
     """
@@ -81,13 +83,14 @@ def fmt_human(lib_users, showlibs=False):
     # Usually, users don't care about what libs exactly are used
     res = []
     for argv, pidslibs in lib_users.items():
-        pidlist =  ",".join(sorted(list(pidslibs[0])))
+        pidlist = ",".join(sorted(list(pidslibs[0])))
         if showlibs:
             libslist = ",".join(sorted(pidslibs[1]))
             res.append("%s \"%s\" uses %s" % (pidlist, argv.strip(), libslist))
         else:
             res.append("%s \"%s\"" % (pidlist, argv.strip()))
     return "\n".join(res)
+
 
 def fmt_machine(lib_users):
     """
@@ -145,7 +148,7 @@ def main(machine_mode=False, showlibs=False):
     if read_failure:
         sys.stderr.write(PERMWARNING)
 
-    if len(users)>0:
+    if len(users) > 0:
         if machine_mode:
             print(fmt_machine(users))
         else:
