@@ -154,6 +154,21 @@ def main(machine_mode=False, showlibs=False):
         else:
             print(fmt_human(users, showlibs))
 
+def get_ignore_list(args):
+    argvset = set(sys.argv)
+    if set(args).intersection(argvset):
+        index = None
+        for i in range(len(args)):
+            try:
+                index = sys.argv.index(args[i])
+            except ValueError:
+                continue
+            break
+        try:
+            return sys.argv[index + 1]
+        except IndexError:
+            return ''
+
 
 def usage():
     """Output usage info"""
@@ -164,12 +179,22 @@ def usage():
     print("   -m, --machine  - Output machine readable info")
     print("   -s, --showlibs - "
           "In human readable mode, show deleted libs in use.")
+    print("   -i, --ignore-pattern <pattern>[:<pattern>...]\n"
+          "                  - Ignore deleted files matching <pattern>.")
+    print("   -I, --ignore-literal <expr>[:<expr>...]\n"
+          "                  - Ignore deleted files named <expr>.")
 
 if __name__ == "__main__":
     argvset = set(sys.argv)
     if set(("-h", "--help")).intersection(argvset):
         usage()
         sys.exit(0)
+    if set(("-i", "--ignore-pattern")).intersection(argvset):
+        pattern = get_ignore_list(("-i", "--ignore-pattern"))
+        [NOLIBSPT.add(pt) for pt in pattern.split(':') if pt]
+    if set(("-I", "--ignore-literal")).intersection(argvset):
+        pattern = get_ignore_list(("-I", "--ignore-literal"))
+        [NOLIBSNP.add(pt) for pt in pattern.split(':') if pt]
     if set(("-m", "--machine")).intersection(argvset):
         # We needn't care about -s here, since the format is static
         main(True, False)

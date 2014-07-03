@@ -1,19 +1,19 @@
 Lib_users
 =========
 
-Lib_users is a Python script that goes through /proc/*/maps and finds all
-cases of libraries being mapped but marked as deleted. It then extracts the
-programs name and arguments from /proc/<pid>/cmdline. This information is
-presented to the user so that those processes can be restarted.
+Lib_users is a Python script that goes through /proc/*/maps and finds all cases
+of libraries being mapped but marked as deleted. It then extracts the programs
+name and arguments from /proc/<pid>/cmdline. This information is presented to
+the user so that those processes can be restarted.
 
 The reason to do this is that after an update, you might end up with processes
 that run for a long time and still use old libraries. In some cases this might
 be a security problem, as the library may be vulnerable. The script displays
-all the distinct argument lists of processes that have deleted files mapped.
-In essence, you get a list of processes and their PIDs. The reason why not
-just the first elemnt of the argument list is presented is that for scripts,
-this will always be the interpreter name (i.e. "perl", "python" etc.) which is
-not useful by itself.
+all the distinct argument lists of processes that have deleted files mapped. In
+essence, you get a list of processes and their PIDs. The reason why not just
+the first elemnt of the argument list is presented is that for scripts, this
+will always be the interpreter name (i.e. "perl", "python" etc.) which is not
+useful by itself.
 
 The script cleans up the list from /proc/<pid>/maps to not display false
 positives - some programs have a pseudo file called /SYSxxxx mapped which
@@ -31,7 +31,7 @@ human-readable:
 12451,16244,16249,16252,16253,16254,26931,28912,29631,8810,894 "/usr/sbin/apache2 -D DEFAULT_VHOST -D INFO -D LANGUAGE -D DAV -D SVN -D MAILMAN -D PHP5 -D USERDIR -D SVN_AUTHZ -D SUEXEC -D SSL -D SSL_DEFAULT_VHOST -D AUTH_DIGEST -D PERL -d /usr/lib64/apache2 -f /etc/apache2/httpd.conf -k start"
 
 Here, the first column is a comma-seperated list of PIDs that share the same
-command line. The second column is the command line in quotation marks. If the 
+command line. The second column is the command line in quotation marks. If the
 -s command line option is used, there will also be information about the names
 of the deleted files in use.
 
@@ -75,9 +75,9 @@ output a warning to stderr that it could not read all map files.
 False positives
 ===============
 
-Some programs open temporary files and immediately delete them. This is done 
+Some programs open temporary files and immediately delete them. This is done so
 they don't leave those files behind after a crash. As a consequence, lib_users
-may report these programs. A notable example are programs that use liborc, the 
+may report these programs. A notable example are programs that use liborc, the
 Oil Runtime Compiler. Here's an example, the media player quodlibet:
 
 # lib_users 
@@ -86,18 +86,21 @@ Oil Runtime Compiler. Here's an example, the media player quodlibet:
 7f409dd0b000-7f409dd1b000 rw-s 00000000 08:01 1179661 /tmp/orcexec.sqa9cE (deleted)
 
 The file /tmp/orcexec.sqa9cE is output from the aforementioned compiler. These
-processes/files can be safely ignored. In fact, restarting quodlibet will just 
+processes/files can be safely ignored. In fact, restarting quodlibet will just
 result in a different liborc tempfile show up as deleted.
 
-Using the -s command line option will show you which deleted files are in use, so
-you decide whether the listed process is a false positive.
+Using the -s command line option will show you which deleted files are in use,
+so you decide whether the listed process is a false positive.
+
+Starting with lib_users 0.8, the -i and -I command line options can be used to
+supply additional to-be-ignored patterns and static strings.
 
 License
 =======
 
-This program is released under the GPL-2, which is included in distributions
-of this script as the file COPYING. If you want to use it for something that
-is incompatible with the GPL-2, feel free to contact me; I'm sure we can work
+This program is released under the GPL-2, which is included in distributions of
+this script as the file COPYING. If you want to use it for something that is
+incompatible with the GPL-2, feel free to contact me; I'm sure we can work
 something out.
 
 Contact & Contributions
