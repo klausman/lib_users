@@ -9,6 +9,7 @@ Libusers - a script that finds users of libs that have been deleted/replaced
 import sys
 import glob
 import fnmatch
+import subprocess
 
 from os.path import normpath
 from collections import defaultdict
@@ -69,7 +70,7 @@ def get_progargs(pid):
     return argv
 
 
-def fmt_human(lib_users, showlibs=False):
+def fmt_human(lib_users, options):
     """
     Format a list of library users into a human-readable table
 
@@ -84,7 +85,7 @@ def fmt_human(lib_users, showlibs=False):
     res = []
     for argv, pidslibs in lib_users.items():
         pidlist = ",".join(sorted(list(pidslibs[0])))
-        if showlibs:
+        if "show_libs" in options:
             libslist = ",".join(sorted(pidslibs[1]))
             res.append("%s \"%s\" uses %s" % (pidlist, argv.strip(), libslist))
         else:
@@ -92,7 +93,7 @@ def fmt_human(lib_users, showlibs=False):
     return "\n".join(res)
 
 
-def fmt_machine(lib_users):
+def fmt_machine(lib_users, options):
     """
     Format a list of library users into a machine-readable table
 
@@ -112,7 +113,45 @@ def fmt_machine(lib_users):
     return "\n".join(res)
 
 
-def main(machine_mode=False, showlibs=False):
+def query_systemctl(pid):
+    """
+    Run systemctl status [pid], return the first token of the first line
+
+    This is noromally the service a given PID belongs to by virtue of being
+    the corresponding cgroup.
+    """
+    # TODO: tests
+    cmd = ["systemctl", "status", pid]
+    pcomm = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, _ = pcomm.communicate()
+    header = output.split("\n")[0]
+    svc = header.split()[0]
+    return svc
+
+
+def get_services(lib_users):
+    """
+    Run systemctl status for the PIDs in the lib_users list and return a
+    list of PIDs to service names as a string for human consumption.
+    """
+    # TODO: tests
+    svc4pid = defaultdict(list)
+    try:
+        for argv, pidslibs in lib_users.items():
+            pidlist = sorted(pidslibs[0])
+            for pid in pidlist:
+                svc4pid[query_systemctl(pid)].append(pid)
+    except OSError as e:
+        return("Could not run systemctl: %s" % e)
+    output = []
+    for k, v in svc4pid.items():
+        output.append("%s belong to %s" % (",".join(v), k))
+
+    return "\n".join(output)
+
+
+def main(options):
     """Main program"""
     all_map_files = glob.glob(PROCFSPAT)
     users = {}
@@ -149,12 +188,18 @@ def main(machine_mode=False, showlibs=False):
         sys.stderr.write(PERMWARNING)
 
     if len(users) > 0:
-        if machine_mode:
-            print(fmt_machine(users))
+        if "machine_mode" in options:
+            print(fmt_machine(users, options))
         else:
-            print(fmt_human(users, showlibs))
+            print(fmt_human(users, options))
+        if "guess_services" in options:
+            print("")
+            print(get_services(users))
+
 
 def get_ignore_list(args):
+    """Derive list of to-be-ignored strings and patterns from command line"""
+    # TODO: tests
     argvset = set(sys.argv)
     if set(args).intersection(argvset):
         index = None
@@ -177,6 +222,7 @@ def usage():
     print("Usage: %s -[hm] --[help|machine]" % (sys.argv[0]))
     print("   -h, --help     - This text")
     print("   -m, --machine  - Output machine readable info")
+    print("   -d, --daemons  - Try to figure out systemd services for PIDs")
     print("   -s, --showlibs - "
           "In human readable mode, show deleted libs in use.")
     print("   -i, --ignore-pattern <pattern>[:<pattern>...]\n"
@@ -184,21 +230,26 @@ def usage():
     print("   -I, --ignore-literal <expr>[:<expr>...]\n"
           "                  - Ignore deleted files named <expr>.")
 
+
 if __name__ == "__main__":
     argvset = set(sys.argv)
+
     if set(("-h", "--help")).intersection(argvset):
         usage()
         sys.exit(0)
+    options = set()
     if set(("-i", "--ignore-pattern")).intersection(argvset):
         pattern = get_ignore_list(("-i", "--ignore-pattern"))
         [NOLIBSPT.add(pt) for pt in pattern.split(':') if pt]
     if set(("-I", "--ignore-literal")).intersection(argvset):
         pattern = get_ignore_list(("-I", "--ignore-literal"))
         [NOLIBSNP.add(pt) for pt in pattern.split(':') if pt]
+
     if set(("-m", "--machine")).intersection(argvset):
-        # We needn't care about -s here, since the format is static
-        main(True, False)
-    elif set(("-s", "--showlibs")).intersection(argvset):
-        main(False, True)
-    else:
-        main()
+        options.add("machine_mode")
+    if set(("-s", "--showlibs")).intersection(argvset):
+        options.add("show_libs")
+    if set(("-d", "--daemons")).intersection(argvset):
+        options.add("guess_services")
+
+    main(options)

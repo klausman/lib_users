@@ -133,75 +133,75 @@ class Testlibusers(unittest.TestCase):
         """Test function for human-readable output"""
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
         outp = '1,2 "argv1"'
-        print(lib_users.fmt_human(inp))
-        self.assertEquals(lib_users.fmt_human(inp), outp)
+        print(lib_users.fmt_human(inp, {}))
+        self.assertEquals(lib_users.fmt_human(inp, {}), outp)
 
         inp = {"argv1": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1"'
-        print(lib_users.fmt_human(inp))
-        self.assertEquals(lib_users.fmt_human(inp), outp)
+        print(lib_users.fmt_human(inp, {}))
+        self.assertEquals(lib_users.fmt_human(inp, {}), outp)
 
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1 argv2"'
-        print(lib_users.fmt_human(inp))
-        self.assertEquals(lib_users.fmt_human(inp), outp)
+        print(lib_users.fmt_human(inp, {}))
+        self.assertEquals(lib_users.fmt_human(inp, {}), outp)
 
         inp = {}
         outp = ''
-        print(lib_users.fmt_human(inp))
-        self.assertEquals(lib_users.fmt_human(inp), outp)
+        print(lib_users.fmt_human(inp, {}))
+        self.assertEquals(lib_users.fmt_human(inp, {}), outp)
 
     def test_fmt_human_with_libs(self):
         """Test function for human-readable output"""
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
         outp = '1,2 "argv1" uses l1,l2'
-        print(lib_users.fmt_human(inp))
-        self.assertEquals(lib_users.fmt_human(inp, True), outp)
+        print(lib_users.fmt_human(inp, {"show_libs"}))
+        self.assertEquals(lib_users.fmt_human(inp, {"show_libs"}), outp)
 
         inp = {"argv1": (set(["1"]), set(["l1"]))}
         outp = '1 "argv1" uses l1'
-        print(lib_users.fmt_human(inp))
-        self.assertEquals(lib_users.fmt_human(inp, True), outp)
+        print(lib_users.fmt_human(inp, {"show_libs"}))
+        self.assertEquals(lib_users.fmt_human(inp, {"show_libs"}), outp)
 
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1 argv2" uses l1,l2'
-        print(lib_users.fmt_human(inp))
-        self.assertEquals(lib_users.fmt_human(inp, True), outp)
+        print(lib_users.fmt_human(inp, {"show_libs"}))
+        self.assertEquals(lib_users.fmt_human(inp, {"show_libs"}), outp)
 
         inp = {}
         outp = ''
-        print(lib_users.fmt_human(inp))
-        self.assertEquals(lib_users.fmt_human(inp), outp)
+        print(lib_users.fmt_human(inp, {"show_libs"}))
+        self.assertEquals(lib_users.fmt_human(inp, {"show_libs"}), outp)
 
     def test_fmt_machine(self):
         """Test function for machine-readable output"""
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
         outp = '1,2;l1,l2;argv1'
-        print(lib_users.fmt_machine(inp))
-        self.assertEquals(lib_users.fmt_machine(inp), outp)
+        print(lib_users.fmt_machine(inp, {}))
+        self.assertEquals(lib_users.fmt_machine(inp, {}), outp)
 
         inp = {"argv1": (set(["1"]), set(["l1", "l2"]))}
         outp = '1;l1,l2;argv1'
-        print(lib_users.fmt_machine(inp))
-        self.assertEquals(lib_users.fmt_machine(inp), outp)
+        print(lib_users.fmt_machine(inp, {}))
+        self.assertEquals(lib_users.fmt_machine(inp, {}), outp)
 
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1;l1,l2;argv1 argv2'
-        print(lib_users.fmt_machine(inp))
-        self.assertEquals(lib_users.fmt_machine(inp), outp)
+        print(lib_users.fmt_machine(inp, {}))
+        self.assertEquals(lib_users.fmt_machine(inp, {}), outp)
 
         inp = {"argv1 argv2 ": (set(["1"]), set())}
         outp = '1;;argv1 argv2'
-        print(lib_users.fmt_machine(inp))
-        self.assertEquals(lib_users.fmt_machine(inp), outp)
+        print(lib_users.fmt_machine(inp, {}))
+        self.assertEquals(lib_users.fmt_machine(inp, {}), outp)
 
         inp = {}
         outp = ''
-        print(lib_users.fmt_machine(inp))
-        self.assertEquals(lib_users.fmt_machine(inp), outp)
+        print(lib_users.fmt_machine(inp, {}))
+        self.assertEquals(lib_users.fmt_machine(inp, {}), outp)
 
     def test_ioerror_perm(self):
         """Test detection of i -EPERM in /proc - works only as nonroot"""
@@ -209,13 +209,13 @@ class Testlibusers(unittest.TestCase):
             raise SkipTest
         lib_users.PROCFSPAT = "/proc/1/mem"
         # main() doesn't return anything, we only test for exceptions
-        self.assertEquals(lib_users.main(), None)
+        self.assertEquals(lib_users.main({}), None)
 
     def test_ioerror_nonexist(self):
         """Test handling of IOError for nonexistant /proc files"""
         lib_users.PROCFSPAT = "/DOESNOTEXIST"
         # main() doesn't return anything, we only test for exceptions
-        self.assertEquals(lib_users.main(), None)
+        self.assertEquals(lib_users.main({}), None)
 
     def test_inaccesible_proc(self):
         self.assertEquals(lib_users.get_progargs("this is not a pid"), None)
@@ -253,16 +253,17 @@ class Testlibuserswithmocks(unittest.TestCase):
 
     def test_actual(self):
         """Test main() in machine mode"""
-        self.assertEquals(self.l_u.main(machine_mode=True), None)
+        options = {"machine_mode"}
+        self.assertEquals(self.l_u.main(options), None)
 
     def test_actual2(self):
         """Test main() in human mode"""
-        self.assertEquals(self.l_u.main(machine_mode=False), None)
+        self.assertEquals(self.l_u.main({}), None)
 
     def test_givenlist(self):
         """Test main() in default mode"""
-        self.assertEquals(self.l_u.main(), None)
+        self.assertEquals(self.l_u.main({}), None)
 
     def test_givenlist(self):
         """Test main() in default mode"""
-        self.assertEquals(self.l_u.main(), None)
+        self.assertEquals(self.l_u.main({}), None)
