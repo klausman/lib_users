@@ -26,6 +26,16 @@ locale.setlocale(locale.LC_ALL, "POSIX")
 EMPTYSET = frozenset()
 
 
+class _options(object):
+
+    def __init__(self):
+        self.machine_readable = False
+        self.show_libs = False
+        self.services = False
+        self.ignore_pattern = {}
+        self.ignore_literal = {}
+
+
 class Testlibusers(unittest.TestCase):
 
     """Run tests that don't need mocks"""
@@ -124,84 +134,83 @@ class Testlibusers(unittest.TestCase):
         pid = os.getpid()
         self.assertGreater(len(lib_users.get_progargs(pid)), 0)
 
-    def test_usage(self):
-        """Test usage() for Exceptions and retval"""
-        self.assertEquals(lib_users.usage(), None)
-
 # Input for these is { argv: ({pid, pid, ...}, {lib, lib, ...}), argv: ... }
     def test_fmt_human(self):
         """Test function for human-readable output"""
+        options = _options()
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
         outp = '1,2 "argv1"'
-        print(lib_users.fmt_human(inp, {}))
-        self.assertEquals(lib_users.fmt_human(inp, {}), outp)
+        print(lib_users.fmt_human(inp, options))
+        self.assertEquals(lib_users.fmt_human(inp, options), outp)
 
         inp = {"argv1": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1"'
-        print(lib_users.fmt_human(inp, {}))
-        self.assertEquals(lib_users.fmt_human(inp, {}), outp)
+        print(lib_users.fmt_human(inp, options))
+        self.assertEquals(lib_users.fmt_human(inp, options), outp)
 
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1 argv2"'
-        print(lib_users.fmt_human(inp, {}))
-        self.assertEquals(lib_users.fmt_human(inp, {}), outp)
+        print(lib_users.fmt_human(inp, options))
+        self.assertEquals(lib_users.fmt_human(inp, options), outp)
 
         inp = {}
         outp = ''
-        print(lib_users.fmt_human(inp, {}))
-        self.assertEquals(lib_users.fmt_human(inp, {}), outp)
+        print(lib_users.fmt_human(inp, options))
+        self.assertEquals(lib_users.fmt_human(inp, options), outp)
 
     def test_fmt_human_with_libs(self):
         """Test function for human-readable output"""
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
         outp = '1,2 "argv1" uses l1,l2'
-        print(lib_users.fmt_human(inp, {"show_libs"}))
-        self.assertEquals(lib_users.fmt_human(inp, {"show_libs"}), outp)
+        options = _options()
+        options.show_libs = True
+        print(lib_users.fmt_human(inp, options))
+        self.assertEquals(lib_users.fmt_human(inp, options), outp)
 
         inp = {"argv1": (set(["1"]), set(["l1"]))}
         outp = '1 "argv1" uses l1'
-        print(lib_users.fmt_human(inp, {"show_libs"}))
-        self.assertEquals(lib_users.fmt_human(inp, {"show_libs"}), outp)
+        print(lib_users.fmt_human(inp, options))
+        self.assertEquals(lib_users.fmt_human(inp, options), outp)
 
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1 argv2" uses l1,l2'
-        print(lib_users.fmt_human(inp, {"show_libs"}))
-        self.assertEquals(lib_users.fmt_human(inp, {"show_libs"}), outp)
+        print(lib_users.fmt_human(inp, options))
+        self.assertEquals(lib_users.fmt_human(inp, options), outp)
 
         inp = {}
         outp = ''
-        print(lib_users.fmt_human(inp, {"show_libs"}))
-        self.assertEquals(lib_users.fmt_human(inp, {"show_libs"}), outp)
+        print(lib_users.fmt_human(inp, options))
+        self.assertEquals(lib_users.fmt_human(inp, options), outp)
 
     def test_fmt_machine(self):
         """Test function for machine-readable output"""
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
         outp = '1,2;l1,l2;argv1'
-        print(lib_users.fmt_machine(inp, {}))
-        self.assertEquals(lib_users.fmt_machine(inp, {}), outp)
+        print(lib_users.fmt_machine(inp))
+        self.assertEquals(lib_users.fmt_machine(inp), outp)
 
         inp = {"argv1": (set(["1"]), set(["l1", "l2"]))}
         outp = '1;l1,l2;argv1'
-        print(lib_users.fmt_machine(inp, {}))
-        self.assertEquals(lib_users.fmt_machine(inp, {}), outp)
+        print(lib_users.fmt_machine(inp))
+        self.assertEquals(lib_users.fmt_machine(inp), outp)
 
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1;l1,l2;argv1 argv2'
-        print(lib_users.fmt_machine(inp, {}))
-        self.assertEquals(lib_users.fmt_machine(inp, {}), outp)
+        print(lib_users.fmt_machine(inp))
+        self.assertEquals(lib_users.fmt_machine(inp), outp)
 
         inp = {"argv1 argv2 ": (set(["1"]), set())}
         outp = '1;;argv1 argv2'
-        print(lib_users.fmt_machine(inp, {}))
-        self.assertEquals(lib_users.fmt_machine(inp, {}), outp)
+        print(lib_users.fmt_machine(inp))
+        self.assertEquals(lib_users.fmt_machine(inp), outp)
 
         inp = {}
         outp = ''
-        print(lib_users.fmt_machine(inp, {}))
-        self.assertEquals(lib_users.fmt_machine(inp, {}), outp)
+        print(lib_users.fmt_machine(inp))
+        self.assertEquals(lib_users.fmt_machine(inp), outp)
 
     def test_ioerror_perm(self):
         """Test detection of i -EPERM in /proc - works only as nonroot"""

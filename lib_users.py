@@ -6,6 +6,7 @@ Libusers - a script that finds users of libs that have been deleted/replaced
 # Copyright 2010 Tobias Klausmann
 # Released under the GPL-2
 
+import argparse
 import sys
 import glob
 import fnmatch
@@ -85,7 +86,7 @@ def fmt_human(lib_users, options):
     res = []
     for argv, pidslibs in lib_users.items():
         pidlist = ",".join(sorted(list(pidslibs[0])))
-        if "show_libs" in options:
+        if options.show_libs:
             libslist = ",".join(sorted(pidslibs[1]))
             res.append("%s \"%s\" uses %s" % (pidlist, argv.strip(), libslist))
         else:
@@ -93,7 +94,7 @@ def fmt_human(lib_users, options):
     return "\n".join(res)
 
 
-def fmt_machine(lib_users, options):
+def fmt_machine(lib_users):
     """
     Format a list of library users into a machine-readable table
 
@@ -188,11 +189,11 @@ def main(options):
         sys.stderr.write(PERMWARNING)
 
     if len(users) > 0:
-        if "machine_mode" in options:
-            print(fmt_machine(users, options))
+        if options.machine_mode:
+            print(fmt_machine(users))
         else:
             print(fmt_human(users, options))
-        if "guess_services" in options:
+        if options.services:
             print("")
             print(get_services(users))
 
@@ -214,42 +215,25 @@ def get_ignore_list(args):
         except IndexError:
             return ''
 
-
-def usage():
-    """Output usage info"""
-    print("Lib_users version %s" % (__version__))
-    print("")
-    print("Usage: %s -[hm] --[help|machine]" % (sys.argv[0]))
-    print("   -h, --help     - This text")
-    print("   -m, --machine  - Output machine readable info")
-    print("   -d, --daemons  - Try to figure out systemd services for PIDs")
-    print("   -s, --showlibs - "
-          "In human readable mode, show deleted libs in use.")
-    print("   -i, --ignore-pattern <pattern>[:<pattern>...]\n"
-          "                  - Ignore deleted files matching <pattern>.")
-    print("   -I, --ignore-literal <expr>[:<expr>...]\n"
-          "                  - Ignore deleted files named <expr>.")
-
-
 if __name__ == "__main__":
-    argvset = set(sys.argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-m", "--machine-readable", action="store_true",
+                        help="Output machine readable info")
+    parser.add_argument("-s", "--showlibs", action="store_true",
+                        help="In human readable mode, show deleted libs in "
+                             "use")
+    parser.add_argument("-S", "--services", action="store_true",
+                        help="Try to find systemd services for lib users")
+    parser.add_argument("-i", "--ignore-pattern", default={},
+                        metavar="REGEXP",
+                        help="Ignore deleted files matching %(metavar)s")
+    parser.add_argument("-I", "--ignore-literal", default={},
+                        metavar="LITERAL",
+                        help="Ignore deleted files named %(metavar)s")
 
-    if set(("-h", "--help")).intersection(argvset):
-        usage()
-        sys.exit(0)
-    options = set()
-    if set(("-i", "--ignore-pattern")).intersection(argvset):
-        pattern = get_ignore_list(("-i", "--ignore-pattern"))
-        [NOLIBSPT.add(pt) for pt in pattern.split(':') if pt]
-    if set(("-I", "--ignore-literal")).intersection(argvset):
-        pattern = get_ignore_list(("-I", "--ignore-literal"))
-        [NOLIBSNP.add(pt) for pt in pattern.split(':') if pt]
+    options = parser.parse_args()
 
-    if set(("-m", "--machine")).intersection(argvset):
-        options.add("machine_mode")
-    if set(("-s", "--showlibs")).intersection(argvset):
-        options.add("show_libs")
-    if set(("-d", "--daemons")).intersection(argvset):
-        options.add("guess_services")
+    NOLIBSPT.update(options.ignore_pattern)
+    NOLIBSNP.update(options.ignore_literal)
 
     main(options)

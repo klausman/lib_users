@@ -51,7 +51,7 @@ not altered in any way. This may be fixed in a future version.
 Dependencies
 ============
 
-The script requires Python 2.5 or higher and should work with Python 3. It only
+The script requires Python 2.7 or higher and should work with Python 3. It only
 uses modules from Pythons standard library, so apart from a Python
 installation, there are no external dependencies.
 
