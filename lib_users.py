@@ -224,12 +224,14 @@ if __name__ == "__main__":
                              "use")
     parser.add_argument("-S", "--services", action="store_true",
                         help="Try to find systemd services for lib users")
-    parser.add_argument("-i", "--ignore-pattern", default={},
-                        metavar="REGEXP",
-                        help="Ignore deleted files matching %(metavar)s")
-    parser.add_argument("-I", "--ignore-literal", default={},
-                        metavar="LITERAL",
-                        help="Ignore deleted files named %(metavar)s")
+    parser.add_argument("-i", "--ignore-pattern", default=[],
+                        metavar="REGEXP", action='append',
+                        help="Ignore deleted files matching %(metavar)s. "
+                        "Can be specified multiple times.")
+    parser.add_argument("-I", "--ignore-literal", default=[],
+                        metavar="LITERAL", action='append',
+                        help="Ignore deleted files named %(metavar)s. "
+                        "Can be specified multiple times.")
 
     options = parser.parse_args()
 
