@@ -30,7 +30,7 @@ class _options(object):
 
     def __init__(self):
         self.machine_readable = False
-        self.show_libs = False
+        self.showlibs = False
         self.services = False
         self.ignore_pattern = {}
         self.ignore_literal = {}
@@ -164,7 +164,7 @@ class Testlibusers(unittest.TestCase):
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
         outp = '1,2 "argv1" uses l1,l2'
         options = _options()
-        options.show_libs = True
+        options.showlibs = True
         print(lib_users.fmt_human(inp, options))
         self.assertEquals(lib_users.fmt_human(inp, options), outp)
 
@@ -232,10 +232,13 @@ class Testlibusers(unittest.TestCase):
 
 class Testlibuserswithmocks(unittest.TestCase):
 
-    """Run tests that don't need mocks"""
+    """Run tests that need mocks"""
 
     def setUp(self):
         """Set up mocked-out functions and save original function refs"""
+
+        self.options = _options()
+
         self.l_u = lib_users
 
         self._orig_get_deleted_libs = self.l_u.get_deleted_libs
@@ -244,16 +247,16 @@ class Testlibuserswithmocks(unittest.TestCase):
         self.l_u.get_deleted_libs = self._mock_get_deleted_libs
         self.l_u.get_progargs = self._mock_get_progargs
 
-    def teardown(self):
+    def tearDown(self):
         """Restore mocked out functions"""
         self.l_u.get_deleted_libs = self._orig_get_deleted_libs
         self.l_u.get_progargs = self._orig_get_progargs
 
-    def _mock_get_deleted_libs(self, _):
+    def _mock_get_deleted_libs(_):
         """Mock out get_deleted_files, always returns set(["foo"])"""
         return(set(["foo"]))
 
-    def _mock_get_progargs(self, _):
+    def _mock_get_progargs(_):
         """
             Mock out progargs, always returns
             "/usr/bin/python4 spam.py --eggs --ham jam"
@@ -262,17 +265,81 @@ class Testlibuserswithmocks(unittest.TestCase):
 
     def test_actual(self):
         """Test main() in machine mode"""
-        options = {"machine_mode"}
-        self.assertEquals(self.l_u.main(options), None)
+        self.options.machine_mode = True
+        self.assertEquals(self.l_u.main(self.options), None)
 
     def test_actual2(self):
         """Test main() in human mode"""
-        self.assertEquals(self.l_u.main({}), None)
+        self.assertEquals(self.l_u.main(self.options), None)
 
     def test_givenlist(self):
         """Test main() in default mode"""
-        self.assertEquals(self.l_u.main({}), None)
+        self.assertEquals(self.l_u.main(self.options), None)
 
     def test_givenlist(self):
         """Test main() in default mode"""
-        self.assertEquals(self.l_u.main({}), None)
+        self.assertEquals(self.l_u.main(self.options), None)
+
+
+class Testsystemdintegration(unittest.TestCase):
+
+    """Test code that integrates with/depends on systemd"""
+
+    def setUp(self):
+        """Set up golden data and save original function refs"""
+        self.l_u = lib_users
+        self.query = {"/usr/bin/foo": (("1", "2", "3"), ("libbar", "libbaz"))}
+        self.golden = "1,2,3 belong to service.shmervice"
+        self.orig_query_systemctl = self.l_u.query_systemctl
+        self.orig_Popen = self.l_u.subprocess.Popen
+
+    def tearDown(self):
+        """Restore mocked out functions"""
+        self.l_u.query_systemctl = self.orig_query_systemctl
+        self.l_u.subprocess.Popen = self.orig_Popen
+
+    def _mock_query_systemctl(self, _):
+        """Mock out query_systemctl, always return "service.shmervice" """
+        return "service.shmervice"
+
+    def _mock_query_systemctl_broken(self, _):
+        """Mock out query_systemctl, always raise OSError"""
+        print("Raising OSError")
+        raise OSError("Dummy Reason")
+
+    def _mock_Popen(self, *_, **__):
+        """Mock out subprocess.Popen"""
+        class mock_proc(object):
+
+            def __init__(self):
+                pass
+
+            def communicate(self):
+                return("stdout sez this", "stderr sez dat")
+
+        return mock_proc()
+
+    def _mock_Popen_broken(self, *_, **__):
+        """Mock out subprocess.Popen, always raising OSError"""
+        raise OSError("Another Dummy Reason")
+
+    def test_get_services(self):
+        """Test get_services"""
+        self.l_u.query_systemctl = self._mock_query_systemctl
+        self.assertEquals(lib_users.get_services(self.query), self.golden)
+
+    def test_get_services_with_broken_systemctl(self):
+        """Test get_services with broken systctl"""
+        self.l_u.query_systemctl = self._mock_query_systemctl_broken
+        self.assertIn("Dummy Reason", lib_users.get_services(self.query))
+
+    def test_query_systemctl(self):
+        """Test test_query_systemctl with mocked Popen"""
+        self.l_u.subprocess.Popen = self._mock_Popen
+        self.l_u.query_systemctl("1")
+
+    def test_query_systemctl_broken(self):
+        """Test test_query_systemctl with mocked broken Popen"""
+        self.l_u.subprocess.Popen = self._mock_Popen_broken
+        with self.assertRaises(OSError):
+            self.l_u.query_systemctl("1")

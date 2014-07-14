@@ -86,7 +86,7 @@ def fmt_human(lib_users, options):
     res = []
     for argv, pidslibs in lib_users.items():
         pidlist = ",".join(sorted(list(pidslibs[0])))
-        if options.show_libs:
+        if options.showlibs:
             libslist = ",".join(sorted(pidslibs[1]))
             res.append("%s \"%s\" uses %s" % (pidlist, argv.strip(), libslist))
         else:
@@ -121,7 +121,6 @@ def query_systemctl(pid):
     This is noromally the service a given PID belongs to by virtue of being
     the corresponding cgroup.
     """
-    # TODO: tests
     cmd = ["systemctl", "status", pid]
     pcomm = subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -136,28 +135,50 @@ def get_services(lib_users):
     Run systemctl status for the PIDs in the lib_users list and return a
     list of PIDs to service names as a string for human consumption.
     """
-    # TODO: tests
     svc4pid = defaultdict(list)
     try:
-        for argv, pidslibs in lib_users.items():
+        for _, pidslibs in lib_users.items():
             pidlist = sorted(pidslibs[0])
             for pid in pidlist:
                 svc4pid[query_systemctl(pid)].append(pid)
-    except OSError as e:
-        return("Could not run systemctl: %s" % e)
+    except OSError as this_exc:
+        return "Could not run systemctl: %s" % this_exc
     output = []
-    for k, v in svc4pid.items():
-        output.append("%s belong to %s" % (",".join(v), k))
+    for key, value in svc4pid.items():
+        output.append("%s belong to %s" % (",".join(value), key))
 
     return "\n".join(output)
 
 
-def main(options):
+def main():
     """Main program"""
     all_map_files = glob.glob(PROCFSPAT)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-m", "--machine-readable", action="store_true",
+                        help="Output machine readable info")
+    parser.add_argument("-s", "--showlibs", action="store_true",
+                        help="In human readable mode, show deleted libs")
+    parser.add_argument("-S", "--services", action="store_true",
+                        help="Try to find systemd services for lib users")
+    parser.add_argument("-i", "--ignore-pattern", default=[],
+                        metavar="REGEXP", action='append',
+                        help="Ignore deleted files matching %(metavar)s. "
+                        "Can be specified multiple times.")
+    parser.add_argument("-I", "--ignore-literal", default=[],
+                        metavar="LITERAL", action='append',
+                        help="Ignore deleted files named %(metavar)s. "
+                        "Can be specified multiple times.")
+
+    options = parser.parse_args()
+
+    NOLIBSPT.update(options.ignore_pattern)
+    NOLIBSNP.update(options.ignore_literal)
+
     users = {}
     users = defaultdict(lambda: (set(), set()))
     read_failure = False
+
     for map_filename in all_map_files:
         try:
             pid = normpath(map_filename).split("/")[2]
@@ -189,7 +210,7 @@ def main(options):
         sys.stderr.write(PERMWARNING)
 
     if len(users) > 0:
-        if options.machine_mode:
+        if options.machine_readable:
             print(fmt_machine(users))
         else:
             print(fmt_human(users, options))
@@ -197,45 +218,5 @@ def main(options):
             print("")
             print(get_services(users))
 
-
-def get_ignore_list(args):
-    """Derive list of to-be-ignored strings and patterns from command line"""
-    # TODO: tests
-    argvset = set(sys.argv)
-    if set(args).intersection(argvset):
-        index = None
-        for i in range(len(args)):
-            try:
-                index = sys.argv.index(args[i])
-            except ValueError:
-                continue
-            break
-        try:
-            return sys.argv[index + 1]
-        except IndexError:
-            return ''
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--machine-readable", action="store_true",
-                        help="Output machine readable info")
-    parser.add_argument("-s", "--showlibs", action="store_true",
-                        help="In human readable mode, show deleted libs in "
-                             "use")
-    parser.add_argument("-S", "--services", action="store_true",
-                        help="Try to find systemd services for lib users")
-    parser.add_argument("-i", "--ignore-pattern", default=[],
-                        metavar="REGEXP", action='append',
-                        help="Ignore deleted files matching %(metavar)s. "
-                        "Can be specified multiple times.")
-    parser.add_argument("-I", "--ignore-literal", default=[],
-                        metavar="LITERAL", action='append',
-                        help="Ignore deleted files named %(metavar)s. "
-                        "Can be specified multiple times.")
-
-    options = parser.parse_args()
-
-    NOLIBSPT.update(options.ignore_pattern)
-    NOLIBSNP.update(options.ignore_literal)
-
-    main(options)
+    main()
