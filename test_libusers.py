@@ -218,13 +218,13 @@ class Testlibusers(unittest.TestCase):
             raise SkipTest
         lib_users.PROCFSPAT = "/proc/1/mem"
         # main() doesn't return anything, we only test for exceptions
-        self.assertEquals(lib_users.main({}), None)
+        self.assertEquals(lib_users.main(), None)
 
     def test_ioerror_nonexist(self):
         """Test handling of IOError for nonexistant /proc files"""
         lib_users.PROCFSPAT = "/DOESNOTEXIST"
         # main() doesn't return anything, we only test for exceptions
-        self.assertEquals(lib_users.main({}), None)
+        self.assertEquals(lib_users.main(), None)
 
     def test_inaccesible_proc(self):
         self.assertEquals(lib_users.get_progargs("this is not a pid"), None)
@@ -264,21 +264,16 @@ class Testlibuserswithmocks(unittest.TestCase):
         return("/usr/bin/python4 spam.py --eggs --ham jam")
 
     def test_actual(self):
-        """Test main() in machine mode"""
-        self.options.machine_mode = True
-        self.assertEquals(self.l_u.main(self.options), None)
-
-    def test_actual2(self):
         """Test main() in human mode"""
-        self.assertEquals(self.l_u.main(self.options), None)
+        self.assertEquals(self.l_u.main(), None)
 
     def test_givenlist(self):
         """Test main() in default mode"""
-        self.assertEquals(self.l_u.main(self.options), None)
+        self.assertEquals(self.l_u.main(), None)
 
     def test_givenlist(self):
         """Test main() in default mode"""
-        self.assertEquals(self.l_u.main(self.options), None)
+        self.assertEquals(self.l_u.main(), None)
 
 
 class Testsystemdintegration(unittest.TestCase):
