@@ -155,6 +155,8 @@ def main():
     all_map_files = glob.glob(PROCFSPAT)
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--version', action='version', 
+                        version='%%(prog)s %s' % (__version__))
     parser.add_argument("-m", "--machine-readable", action="store_true",
                         help="Output machine readable info")
     parser.add_argument("-s", "--showlibs", action="store_true",

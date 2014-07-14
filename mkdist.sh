@@ -6,7 +6,7 @@ function die() {
 }
 
 DISTDIR="dists/"
-FVERS=$(./lib_users.py --help|head -n1|sed -r -e 's/.*version ([^ ]*).*/\1/g') || die "Could not determine version"
+FVERS=$(./lib_users.py --version 2>&1|head -n1|awk '{print $2}'||die "version?")
 PNAME="lib_users-$FVERS"
 
 [ -d $DISTDIR ] || mkdir $DISTDIR || die "mkdir failed"
