@@ -150,7 +150,7 @@ def get_services(lib_users):
     return "\n".join(output)
 
 
-def main():
+def main(argv):
     """Main program"""
     all_map_files = glob.glob(PROCFSPAT)
 
@@ -172,7 +172,7 @@ def main():
                         help="Ignore deleted files named %(metavar)s. "
                         "Can be specified multiple times.")
 
-    options = parser.parse_args()
+    options = parser.parse_args(argv)
 
     NOLIBSPT.update(options.ignore_pattern)
     NOLIBSNP.update(options.ignore_literal)
@@ -221,4 +221,4 @@ def main():
             print(get_services(users))
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)
