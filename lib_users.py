@@ -20,7 +20,7 @@ PROCFSBASE = "/proc/"
 PERMWARNING = """\
 Warning: Some files could not be read. Note that lib_users has to be run as
 root to get a full list of deleted in-use libraries.\n"""
-__version__ = "0.7"
+__version__ = "0.8"
 
 # These are no true libs so don't make our process a deleted libs user
 # The first set is patterns, i.e. they are compared using fnmatch()
@@ -162,7 +162,7 @@ def main():
     parser.add_argument("-S", "--services", action="store_true",
                         help="Try to find systemd services for lib users")
     parser.add_argument("-i", "--ignore-pattern", default=[],
-                        metavar="REGEXP", action='append',
+                        metavar="GLOB", action='append',
                         help="Ignore deleted files matching %(metavar)s. "
                         "Can be specified multiple times.")
     parser.add_argument("-I", "--ignore-literal", default=[],
