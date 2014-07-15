@@ -20,7 +20,7 @@ PROCFSBASE = "/proc/"
 PERMWARNING = """\
 Warning: Some files could not be read. Note that lib_users has to be run as
 root to get a full list of deleted in-use libraries.\n"""
-__version__ = "0.8"
+__version__ = "0.9"
 
 # These are no true libs so don't make our process a deleted libs user
 # The first set is patterns, i.e. they are compared using fnmatch()
