@@ -59,16 +59,13 @@ def get_deleted_libs(map_file):
 
 def get_progargs(pid):
     """
-    Get argv for a given PID and return it as a list
+    Get argv for a given PID and return it as a string (spaces-sep'd).
     """
     try:
         argv = open("%s/%s/cmdline" % (PROCFSBASE, pid)).read()
     except IOError:
         return None
-    argv = argv.split('\x00')
-    argv = [e.strip() for e in argv]
-    argv = " ".join(argv)
-    return argv
+    return argv.replace('\x00', ' ')
 
 
 def fmt_human(lib_users, options):
