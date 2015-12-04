@@ -32,7 +32,7 @@ NOLIBSNP = set(["/dev/zero", "/drm", "object", "/[aio]"])
 
 def get_deleted_libs(map_file):
     """
-    Get all deleted libs from a given map file and return them as a set
+    Get all deleted libs from a given map file and return them as a set.
     """
     deletedlibs = set()
 
@@ -70,24 +70,26 @@ def get_progargs(pid):
 
 def fmt_human(lib_users, options):
     """
-    Format a list of library users into a human-readable table
+    Format a list of library users into a human-readable table.
 
     Args:
      lib_users: Dict of library users, keys are argvs (as string), values are
      tuples of two sets, first listing the libraries used, second listing the
      PIDs: { argv: ({pid, pid, ...}, {lib, lib, ...}), argv: ... }
+     options: an object that has a showlibs bool that determines whether the
+     libraries in use should be shown. usually the return value of argparse's
+     parse_args().
     Returns:
      A multiline string for human consumption
     """
-    # Usually, users don't care about what libs exactly are used
     res = []
     for argv, pidslibs in lib_users.items():
         pidlist = ",".join(sorted(list(pidslibs[0])))
         if options.showlibs:
             libslist = ",".join(sorted(pidslibs[1]))
-            res.append("%s \"%s\" uses %s" % (pidlist, argv.strip(), libslist))
+            res.append('%s "%s" uses %s' % (pidlist, argv.strip(), libslist))
         else:
-            res.append("%s \"%s\"" % (pidlist, argv.strip()))
+            res.append('%s "%s"' % (pidlist, argv.strip()))
     return "\n".join(res)
 
 
@@ -102,7 +104,6 @@ def fmt_machine(lib_users):
     Returns:
      A multiline string for machine consumption
     """
-    # Usually, users don't care about what libs exactly are used
     res = []
     for argv, pidslibs in lib_users.items():
         pidlist = ",".join(sorted(pidslibs[0]))
@@ -115,7 +116,7 @@ def query_systemctl(pid):
     """
     Run systemctl status [pid], return the first token of the first line
 
-    This is noromally the service a given PID belongs to by virtue of being
+    This is normally the service a given PID belongs to by virtue of being
     the corresponding cgroup.
     """
     cmd = ["systemctl", "status", pid]
@@ -149,8 +150,6 @@ def get_services(lib_users):
 
 def main(argv):
     """Main program"""
-    all_map_files = glob.glob(PROCFSPAT)
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--version', action='version',
                         version='%%(prog)s %s' % (__version__))
@@ -174,11 +173,11 @@ def main(argv):
     NOLIBSPT.update(options.ignore_pattern)
     NOLIBSNP.update(options.ignore_literal)
 
-    users = {}
     users = defaultdict(lambda: (set(), set()))
     read_failure = False
 
-    for map_filename in all_map_files:
+    for map_filename in glob.glob(PROCFSPAT):
+        deletedlibs = []
         try:
             pid = normpath(map_filename).split("/")[2]
         except IndexError:
@@ -188,17 +187,12 @@ def main(argv):
 
         try:
             mapsfile = open(map_filename)
-        except IOError:
-            # The file is unreadable for us, so skip it silently
-            continue
-
-        try:
             deletedlibs = get_deleted_libs(mapsfile)
         except IOError:
             read_failure = True
             continue
 
-        if len(deletedlibs) > 0:
+        if deletedlibs:
             argv = get_progargs(pid)
             if not argv:
                 continue
@@ -214,7 +208,7 @@ def main(argv):
         else:
             print(fmt_human(users, options))
         if options.services:
-            print("")
+            print()
             print(get_services(users))
 
 if __name__ == "__main__":
