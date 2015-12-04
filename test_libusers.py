@@ -27,7 +27,7 @@ EMPTYSET = frozenset()
 
 
 class _options(object):
-
+    """Mock options object that mimicks the bare necessities"""
     def __init__(self):
         self.machine_readable = False
         self.showlibs = False
@@ -37,6 +37,7 @@ class _options(object):
 
 
 class Testlibusers(unittest.TestCase):
+    """Run tests that don't need mocks"""
 
     def setUp(self):
         self.l_u = lib_users
@@ -47,11 +48,9 @@ class Testlibusers(unittest.TestCase):
     def tearDown(self):
         self.l_u.sys.stderr.write = self._orig_stderr_write
 
-    def _mock_sys_stderr_write(*_, **__):
+    def _mock_sys_stderr_write(*_, **_unused):
         """Mock write() that swallows all args"""
 
-
-    """Run tests that don't need mocks"""
     def test_nonlibs(self):
         """Test detection of mappings that aren't libs"""
         pseudofile = []
@@ -86,9 +85,11 @@ class Testlibusers(unittest.TestCase):
         res = list(lib_users.get_deleted_libs(pseudofile))
         res.sort()
         self.assertEquals(
-            res, ['/lib/SYSV00000000', '/lib/[aio]', '/lib/dev/shm/foo', '/lib/dev/zero', '/lib/drm'])
+            res, ['/lib/SYSV00000000', '/lib/[aio]', '/lib/dev/shm/foo', '/lib/dev/zero',
+                  '/lib/drm'])
 
     def test_openvz_maps(self):
+        """Test that OpenVZ maps are handled correctly"""
         testdata = open("testdata/openvz-maps").read()
         pseudofile = StringIO(testdata)
         res = lib_users.get_deleted_libs(pseudofile)
@@ -100,6 +101,7 @@ class Testlibusers(unittest.TestCase):
         self.assertEquals(res, expected)
 
     def test_drm_mm_maps(self):
+        """Test that deleted DRM maps yield no results"""
         testdata = open("testdata/drm-mm-maps").read()
         pseudofile = StringIO(testdata)
         res = lib_users.get_deleted_libs(pseudofile)
@@ -115,25 +117,29 @@ class Testlibusers(unittest.TestCase):
     def test_libplainnames(self):
         """Test detection of wrong order of fields"""
         pseudofile = StringIO(
-            """7f02a85fc000-7f02a87fb000 ---p 0000a000 09:01 32647 (deleted) /lib64/libdontfindme.so""")
+            "7f02a85fc000-7f02a87fb000 ---p 0000a000 09:01 32647 (deleted) "
+            "/lib64/libdontfindme.so")
         self.assertEquals(lib_users.get_deleted_libs(pseudofile), EMPTYSET)
 
     def test_parennames(self):
         """Test detection of libraries with embedded special strings"""
         pseudofile = StringIO(
-            """7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 /lib64/libdontfindmeeither_(deleted)i-2.11.2.so""")
+            "7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 "
+            "/lib64/libdontfindmeeither_(deleted)i-2.11.2.so")
         self.assertEquals(lib_users.get_deleted_libs(pseudofile), EMPTYSET)
 
     def test_parenwcontent(self):
         """Test detection of superstrings of special strings"""
         pseudofile = StringIO(
-            """7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 /lib64/libdontfindmeeither-2.11.2.so (notdeleted)""")
+            "7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 "
+            "/lib64/libdontfindmeeither-2.11.2.so (notdeleted)")
         self.assertEquals(lib_users.get_deleted_libs(pseudofile), EMPTYSET)
 
     def test_parenwcontent2(self):
         """Test detection of substrings of special strings"""
         pseudofile = StringIO(
-            """7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 /lib64/libdontfindmeeither-2.11.2.so (delete)""")
+            "7f02a87fc000-7f02a87fd000 rw-p 0000a000 09:01 32647 "
+            "/lib64/libdontfindmeeither-2.11.2.so (delete)")
         self.assertEquals(lib_users.get_deleted_libs(pseudofile), EMPTYSET)
 
     def test_progargs_str(self):
@@ -239,6 +245,7 @@ class Testlibusers(unittest.TestCase):
         self.assertEquals(lib_users.main([]), None)
 
     def test_inaccesible_proc(self):
+        """Test that an inaccessible /proc does not break and yields an empty result"""
         self.assertEquals(lib_users.get_progargs("this is not a pid"), None)
 
 
@@ -269,16 +276,16 @@ class Testlibuserswithmocks(unittest.TestCase):
 
     def _mock_get_deleted_libs(_):
         """Mock out get_deleted_files, always returns set(["foo"])"""
-        return(set(["foo"]))
+        return set(["foo"])
 
     def _mock_get_progargs(_):
         """
             Mock out progargs, always returns
             "/usr/bin/python4 spam.py --eggs --ham jam"
         """
-        return("/usr/bin/python4 spam.py --eggs --ham jam")
+        return "/usr/bin/python4 spam.py --eggs --ham jam"
 
-    def _mock_sys_stderr_write(*_, **__):
+    def _mock_sys_stderr_write(*_, **_unused):
         """Mock write() that swallows all args"""
 
     def test_actual(self):
@@ -288,10 +295,6 @@ class Testlibuserswithmocks(unittest.TestCase):
     def test_actual2(self):
         """Test main() in machine mode"""
         self.assertEquals(self.l_u.main(["-m"]), None)
-
-    def test_givenlist(self):
-        """Test main() in default mode"""
-        self.assertEquals(self.l_u.main([]), None)
 
     def test_givenlist(self):
         """Test main() in default mode"""
@@ -327,23 +330,24 @@ class Testsystemdintegration(unittest.TestCase):
         print("Raising OSError")
         raise OSError("Dummy Reason")
 
-    def _mock_Popen(self, *_, **__):
+    def _mock_Popen(self, *_, **_unused):
         """Mock out subprocess.Popen"""
         class mock_proc(object):
-
+            """A mock in a mock of a sock."""
             def __init__(self):
                 pass
 
             def communicate(self):
+                """...with a lock"""
                 return("stdout sez this", "stderr sez dat")
 
         return mock_proc()
 
-    def _mock_Popen_broken(self, *_, **__):
+    def _mock_Popen_broken(self, *_, **_unused):
         """Mock out subprocess.Popen, always raising OSError"""
         raise OSError("Another Dummy Reason")
 
-    def _mock_sys_stderr_write(*_, **__):
+    def _mock_sys_stderr_write(*_, **_unused):
         """Mock write() that swallows all args"""
 
     def test_get_services(self):
