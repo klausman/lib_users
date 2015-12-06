@@ -28,6 +28,7 @@ EMPTYSET = frozenset()
 
 class _options(object):
     """Mock options object that mimicks the bare necessities"""
+
     def __init__(self):
         self.machine_readable = False
         self.showlibs = False
@@ -314,7 +315,6 @@ class Testsystemdintegration(unittest.TestCase):
         self._orig_Popen = self.l_u.subprocess.Popen
         self._orig_stderr_write = self.l_u.sys.stderr.write
 
-
     def tearDown(self):
         """Restore mocked out functions"""
         self.l_u.query_systemctl = self._orig_query_systemctl
@@ -334,12 +334,13 @@ class Testsystemdintegration(unittest.TestCase):
         """Mock out subprocess.Popen"""
         class mock_proc(object):
             """A mock in a mock of a sock."""
+
             def __init__(self):
                 pass
 
             def communicate(self):
                 """...with a lock"""
-                return("stdout sez this", "stderr sez dat")
+                return("● sshd.service - OpenSSH Daemon", "stderr sez dat")
 
         return mock_proc()
 
@@ -363,10 +364,22 @@ class Testsystemdintegration(unittest.TestCase):
     def test_query_systemctl(self):
         """Test test_query_systemctl with mocked Popen"""
         self.l_u.subprocess.Popen = self._mock_Popen
-        self.l_u.query_systemctl("1")
+        ret = self.l_u.query_systemctl("1")
+        self.assertEquals(ret, "sshd.service")
 
     def test_query_systemctl_broken(self):
         """Test test_query_systemctl with mocked broken Popen"""
         self.l_u.subprocess.Popen = self._mock_Popen_broken
         with self.assertRaises(OSError):
             self.l_u.query_systemctl("1")
+
+    def test_format1(self):
+        """Test "classic" output format of systemctl status"""
+        retval = self.l_u.query_systemctl("1", "sshd.service - OpenSSH Daemon")
+        self.assertEquals(retval, "sshd.service")
+
+    def test_format2(self):
+        """Test first iteration output format of systemctl status"""
+        retval = self.l_u.query_systemctl(
+            "1", "● sshd.service - OpenSSH Daemon")
+        self.assertEquals(retval, "sshd.service")

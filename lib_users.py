@@ -112,19 +112,35 @@ def fmt_machine(lib_users):
     return "\n".join(res)
 
 
-def query_systemctl(pid):
+def query_systemctl(pid, output=None):
     """
     Run systemctl status [pid], return the first token of the first line
 
     This is normally the service a given PID belongs to by virtue of being
-    the corresponding cgroup.
+    the corresponding cgroup. If output is not None, do not run systemctl,
+    instead use output as if it was provided by it.
     """
-    cmd = ["systemctl", "status", pid]
-    pcomm = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, _ = pcomm.communicate()
+    # Since there is no way to query systemd for the unit a given PID belongs to
+    # in a way that yields machine-readable output ("status" knows about PIDs,
+    # but has only human-readable output, "show" has machine-readable output,
+    # but doesn't know about PIDs), we have to do ad hoc parsing. So far, the
+    # following formats have been encountered in the wild:
+    # sshd.service - OpenSSH Daemon
+    # ● sshd.service - OpenSSH Daemon
+
+    if not output:
+        cmd = ["systemctl", "status", pid]
+        pcomm = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, _ = pcomm.communicate()
     header = output.split("\n")[0]
-    svc = header.split()[0]
+    fields = header.split("-")[0].split()
+    if len(fields) == 1:
+        # ['sshd.service', 'OpenSSH Daemon']
+        svc = fields[0]
+    else:
+        # ['●', 'sshd.service', 'OpenSSH Daemon']
+        svc = fields[1]
     return svc
 
 
