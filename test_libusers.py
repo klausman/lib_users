@@ -383,3 +383,8 @@ class Testsystemdintegration(unittest.TestCase):
         retval = self.l_u.query_systemctl(
             "1", "● sshd.service - OpenSSH Daemon")
         self.assertEquals(retval, "sshd.service")
+
+    def test_no_match(self):
+        retval = self.l_u.query_systemctl(
+            "1", "No unit for PID 1 is loaded.\nBlah")
+        self.assertEquals(retval, None)

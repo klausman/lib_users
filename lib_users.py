@@ -133,6 +133,8 @@ def query_systemctl(pid, output=None):
         pcomm = subprocess.Popen(
             cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, _ = pcomm.communicate()
+    if "No unit for PID %s is loaded." % (pid) in output:
+        return None
     header = output.split("\n")[0]
     fields = header.split("-")[0].split()
     if len(fields) == 1:
@@ -154,7 +156,9 @@ def get_services(lib_users):
         for _, pidslibs in lib_users.items():
             pidlist = sorted(pidslibs[0])
             for pid in pidlist:
-                svc4pid[query_systemctl(pid)].append(pid)
+                unit = query_systemctl(pid)
+                if unit:
+                    svc4pid[unit].append(pid)
     except OSError as this_exc:
         return "Could not run systemctl: %s" % this_exc
     output = []
@@ -193,7 +197,7 @@ def main(argv):
     read_failure = False
 
     for map_filename in glob.glob(PROCFSPAT):
-        deletedlibs = []
+        deletedlibs = set()
         try:
             pid = normpath(map_filename).split("/")[2]
         except IndexError:
