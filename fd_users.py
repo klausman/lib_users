@@ -21,6 +21,7 @@ root to get a full list of deleted in-use libraries.\n"""
 DELSUFFIX = " (deleted)"
 __version__ = "0.9"
 
+
 def get_deleted_files(fddir, ign_patterns, ign_literals):
     """
     Get list of deleted files listed in fddir.
@@ -48,6 +49,7 @@ def get_deleted_files(fddir, ign_patterns, ign_literals):
                 continue
             deletedfds.append(actual_target)
     return deletedfds
+
 
 def match_any(name, patterns):
     """Return if name matches any of the patterns (globs)"""

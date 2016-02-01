@@ -39,6 +39,7 @@ class _options(object):
         self.ignore_pattern = {}
         self.ignore_literal = {}
 
+
 class TestGetProgargs(unittest.TestCase):
 
     def test_progargs(self):
@@ -54,8 +55,6 @@ class TestGetProgargs(unittest.TestCase):
         """Test that an inaccessible /proc does not break and yields an empty result"""
         self.assertEquals(fd_users.get_progargs("this is not a pid"), None)
 
-
-  
 
 class TestGetDeletedFiles(unittest.TestCase):
 
@@ -148,7 +147,7 @@ class TestGetDeletedFiles(unittest.TestCase):
         self.f_u.os.readlink.side_effect = ["/some/other/file (deleted)",
                                             "/some/other/file2"]
 
-        res = self.f_u.get_deleted_files("/nonexistant/1/fd", 
+        res = self.f_u.get_deleted_files("/nonexistant/1/fd",
                                          ["/some/other/fil*"], [])
         self.assertEqual(res, [])
         self.f_u.glob.glob.assert_called_once_with("/nonexistant/1/fd/*")
@@ -164,7 +163,7 @@ class TestGetDeletedFiles(unittest.TestCase):
         self.f_u.os.readlink.side_effect = ["/some/other/file (deleted)",
                                             "/some/other/file2"]
 
-        res = self.f_u.get_deleted_files("/nonexistant/1/fd", 
+        res = self.f_u.get_deleted_files("/nonexistant/1/fd",
                                          ["/pattern/doesnt/match*"], [])
         self.assertEqual(res, ["/some/other/file"])
         self.f_u.glob.glob.assert_called_once_with("/nonexistant/1/fd/*")
@@ -172,13 +171,10 @@ class TestGetDeletedFiles(unittest.TestCase):
             unittest.mock.call(x) for x in fdlist)
 
 
-
-
-
-
-
 class TestFormatting(unittest.TestCase):
-# Input for these is { argv: ({pid, pid, ...}, {file, file, ...}), argv: ... }
+    # Input for these is { argv: ({pid, pid, ...}, {file, file, ...}), argv:
+    # ... }
+
     def test_fmt_human(self):
         """Test function for human-readable output"""
         options = _options()
@@ -269,6 +265,7 @@ class TestFormatting(unittest.TestCase):
         fd_users.PROCFSPAT = "/DOESNOTEXIST"
         # main() doesn't return anything, we only test for exceptions
         self.assertEquals(fd_users.main([]), None)
+
 
 class Testlibuserswithmocks(unittest.TestCase):
 
