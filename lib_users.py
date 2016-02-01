@@ -3,8 +3,8 @@
 Libusers - a script that finds users of libs that have been deleted/replaced
 """
 
-# Copyright 2010 Tobias Klausmann
 # Released under the GPL-2
+# -*- coding: utf8 -*-
 
 import argparse
 import sys

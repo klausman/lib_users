@@ -3,7 +3,7 @@
 Libusers - a script that finds users of files that have been deleted/replaced
 """
 # Released under the GPL-2
-
+# -*- coding: utf8 -*-
 import argparse
 import sys
 import glob
@@ -195,11 +195,10 @@ def main(argv):
 
     for fddir in glob.glob(PROCFSPAT):
         if (fddir.startswith("/proc/self/fd") or
-            fddir.startswith("/proc/thread-self/fd") or
-            fddir.startswith("/proc/%s/fd" % (os.getpid()))):
+                fddir.startswith("/proc/thread-self/fd") or
+                fddir.startswith("/proc/%s/fd" % (os.getpid()))):
             continue
 
-        deletedfiles = set()
         try:
             pid = os.path.normpath(fddir).split("/")[2]
         except IndexError:
@@ -210,7 +209,7 @@ def main(argv):
         try:
             deletedfiles = get_deleted_files(fddir, options.ignore_pattern,
                                              options.ignore_literal)
-        except IOError as exc:
+        except IOError:
             read_failure = True
             continue
 

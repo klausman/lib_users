@@ -3,7 +3,7 @@ Test suite for lib_users
 
 To be run through nose, not executed directly.
 """
-
+# -*- coding: utf8 -*-
 import os
 import sys
 import locale
