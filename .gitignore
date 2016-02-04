@@ -4,3 +4,6 @@
 .*.swp
 .coverage
 dists/**
+build/**
+dist/**
+lib_users.egg-info/**
