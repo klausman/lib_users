@@ -143,112 +143,6 @@ class Testlibusers(unittest.TestCase):
             "/lib64/libdontfindmeeither-2.11.2.so (delete)")
         self.assertEquals(lib_users.get_deleted_libs(pseudofile), EMPTYSET)
 
-    def test_progargs_str(self):
-        """Test length of argv using string pid"""
-        pid = str(os.getpid())
-        self.assertGreater(len(lib_users.get_progargs(pid)), 0)
-
-    def test_progargs_int(self):
-        """Test length of argv using integer pid"""
-        pid = os.getpid()
-        self.assertGreater(len(lib_users.get_progargs(pid)), 0)
-
-# Input for these is { argv: ({pid, pid, ...}, {lib, lib, ...}), argv: ... }
-    def test_fmt_human(self):
-        """Test function for human-readable output"""
-        options = _options()
-        inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
-        outp = '1,2 "argv1"'
-        print(lib_users.fmt_human(inp, options))
-        self.assertEquals(lib_users.fmt_human(inp, options), outp)
-
-        inp = {"argv1": (set(["1"]), set(["l1", "l2"]))}
-        outp = '1 "argv1"'
-        print(lib_users.fmt_human(inp, options))
-        self.assertEquals(lib_users.fmt_human(inp, options), outp)
-
-        # The space at the end of this argv should go away.
-        inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
-        outp = '1 "argv1 argv2"'
-        print(lib_users.fmt_human(inp, options))
-        self.assertEquals(lib_users.fmt_human(inp, options), outp)
-
-        inp = {}
-        outp = ''
-        print(lib_users.fmt_human(inp, options))
-        self.assertEquals(lib_users.fmt_human(inp, options), outp)
-
-    def test_fmt_human_with_libs(self):
-        """Test function for human-readable output"""
-        inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
-        outp = '1,2 "argv1" uses l1,l2'
-        options = _options()
-        options.showlibs = True
-        print(lib_users.fmt_human(inp, options))
-        self.assertEquals(lib_users.fmt_human(inp, options), outp)
-
-        inp = {"argv1": (set(["1"]), set(["l1"]))}
-        outp = '1 "argv1" uses l1'
-        print(lib_users.fmt_human(inp, options))
-        self.assertEquals(lib_users.fmt_human(inp, options), outp)
-
-        # The space at the end of this argv should go away.
-        inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
-        outp = '1 "argv1 argv2" uses l1,l2'
-        print(lib_users.fmt_human(inp, options))
-        self.assertEquals(lib_users.fmt_human(inp, options), outp)
-
-        inp = {}
-        outp = ''
-        print(lib_users.fmt_human(inp, options))
-        self.assertEquals(lib_users.fmt_human(inp, options), outp)
-
-    def test_fmt_machine(self):
-        """Test function for machine-readable output"""
-        inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
-        outp = '1,2;l1,l2;argv1'
-        print(lib_users.fmt_machine(inp))
-        self.assertEquals(lib_users.fmt_machine(inp), outp)
-
-        inp = {"argv1": (set(["1"]), set(["l1", "l2"]))}
-        outp = '1;l1,l2;argv1'
-        print(lib_users.fmt_machine(inp))
-        self.assertEquals(lib_users.fmt_machine(inp), outp)
-
-        # The space at the end of this argv should go away.
-        inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
-        outp = '1;l1,l2;argv1 argv2'
-        print(lib_users.fmt_machine(inp))
-        self.assertEquals(lib_users.fmt_machine(inp), outp)
-
-        inp = {"argv1 argv2 ": (set(["1"]), set())}
-        outp = '1;;argv1 argv2'
-        print(lib_users.fmt_machine(inp))
-        self.assertEquals(lib_users.fmt_machine(inp), outp)
-
-        inp = {}
-        outp = ''
-        print(lib_users.fmt_machine(inp))
-        self.assertEquals(lib_users.fmt_machine(inp), outp)
-
-    def test_ioerror_perm(self):
-        """Test detection of -EPERM in /proc - works only as nonroot"""
-        if os.geteuid() == 0:
-            raise SkipTest
-        lib_users.PROCFSPAT = "/proc/1/mem"
-        # main() doesn't return anything, we only test for exceptions
-        self.assertEquals(lib_users.main([]), None)
-
-    def test_ioerror_nonexist(self):
-        """Test handling of IOError for nonexistant /proc files"""
-        lib_users.PROCFSPAT = "/DOESNOTEXIST"
-        # main() doesn't return anything, we only test for exceptions
-        self.assertEquals(lib_users.main([]), None)
-
-    def test_inaccesible_proc(self):
-        """Test that an inaccessible /proc does not break and yields an empty result"""
-        self.assertEquals(lib_users.get_progargs("this is not a pid"), None)
-
 
 class Testlibuserswithmocks(unittest.TestCase):
 
@@ -262,11 +156,11 @@ class Testlibuserswithmocks(unittest.TestCase):
         self.l_u = lib_users
 
         self._orig_get_deleted_libs = self.l_u.get_deleted_libs
-        self._orig_get_progargs = self.l_u.get_progargs
+        self._orig_get_progargs = self.l_u.common.get_progargs
         self._orig_stderr_write = self.l_u.sys.stderr.write
 
         self.l_u.get_deleted_libs = self._mock_get_deleted_libs
-        self.l_u.get_progargs = self._mock_get_progargs
+        self.l_u.common.get_progargs = self._mock_get_progargs
         self.l_u.sys.stderr.write = self._mock_sys_stderr_write
 
     def tearDown(self):
@@ -275,11 +169,11 @@ class Testlibuserswithmocks(unittest.TestCase):
         self.l_u.get_progargs = self._orig_get_progargs
         self.l_u.sys.stderr.write = self._orig_stderr_write
 
-    def _mock_get_deleted_libs(_):
+    def _mock_get_deleted_libs(*unused_args):
         """Mock out get_deleted_files, always returns set(["foo"])"""
         return set(["foo"])
 
-    def _mock_get_progargs(_):
+    def _mock_get_progargs(*unused_args):
         """
             Mock out progargs, always returns
             "/usr/bin/python4 spam.py --eggs --ham jam"
@@ -300,91 +194,3 @@ class Testlibuserswithmocks(unittest.TestCase):
     def test_givenlist(self):
         """Test main() in default mode"""
         self.assertEquals(self.l_u.main([]), None)
-
-
-class Testsystemdintegration(unittest.TestCase):
-
-    """Test code that integrates with/depends on systemd"""
-
-    def setUp(self):
-        """Set up golden data and save original function refs"""
-        self.l_u = lib_users
-        self.query = {"/usr/bin/foo": (("1", "2", "3"), ("libbar", "libbaz"))}
-        self.golden = "1,2,3 belong to service.shmervice"
-        self._orig_query_systemctl = self.l_u.query_systemctl
-        self._orig_Popen = self.l_u.subprocess.Popen
-        self._orig_stderr_write = self.l_u.sys.stderr.write
-
-    def tearDown(self):
-        """Restore mocked out functions"""
-        self.l_u.query_systemctl = self._orig_query_systemctl
-        self.l_u.subprocess.Popen = self._orig_Popen
-        self.l_u.sys.stderr.write = self._orig_stderr_write
-
-    def _mock_query_systemctl(self, _):
-        """Mock out query_systemctl, always return "service.shmervice" """
-        return "service.shmervice"
-
-    def _mock_query_systemctl_broken(self, _):
-        """Mock out query_systemctl, always raise OSError"""
-        print("Raising OSError")
-        raise OSError("Dummy Reason")
-
-    def _mock_Popen(self, *_, **_unused):
-        """Mock out subprocess.Popen"""
-        class mock_proc(object):
-            """A mock in a mock of a sock."""
-
-            def __init__(self):
-                pass
-
-            def communicate(self):
-                """...with a lock"""
-                return("● sshd.service - OpenSSH Daemon", "stderr sez dat")
-
-        return mock_proc()
-
-    def _mock_Popen_broken(self, *_, **_unused):
-        """Mock out subprocess.Popen, always raising OSError"""
-        raise OSError("Another Dummy Reason")
-
-    def _mock_sys_stderr_write(*_, **_unused):
-        """Mock write() that swallows all args"""
-
-    def test_get_services(self):
-        """Test get_services"""
-        self.l_u.query_systemctl = self._mock_query_systemctl
-        self.assertEquals(lib_users.get_services(self.query), self.golden)
-
-    def test_get_services_with_broken_systemctl(self):
-        """Test get_services with broken systctl"""
-        self.l_u.query_systemctl = self._mock_query_systemctl_broken
-        self.assertIn("Dummy Reason", lib_users.get_services(self.query))
-
-    def test_query_systemctl(self):
-        """Test test_query_systemctl with mocked Popen"""
-        self.l_u.subprocess.Popen = self._mock_Popen
-        ret = self.l_u.query_systemctl("1")
-        self.assertEquals(ret, "sshd.service")
-
-    def test_query_systemctl_broken(self):
-        """Test test_query_systemctl with mocked broken Popen"""
-        self.l_u.subprocess.Popen = self._mock_Popen_broken
-        with self.assertRaises(OSError):
-            self.l_u.query_systemctl("1")
-
-    def test_format1(self):
-        """Test "classic" output format of systemctl status"""
-        retval = self.l_u.query_systemctl("1", "sshd.service - OpenSSH Daemon")
-        self.assertEquals(retval, "sshd.service")
-
-    def test_format2(self):
-        """Test first iteration output format of systemctl status"""
-        retval = self.l_u.query_systemctl(
-            "1", "● sshd.service - OpenSSH Daemon")
-        self.assertEquals(retval, "sshd.service")
-
-    def test_no_match(self):
-        retval = self.l_u.query_systemctl(
-            "1", "No unit for PID 1 is loaded.\nBlah")
-        self.assertEquals(retval, None)
