@@ -19,10 +19,16 @@ The script cleans up the list from /proc/<pid>/maps to not display false
 positives - some programs have a pseudo file called /SYSxxxx mapped which
 obviously is not a library that was updated.
 
+As of v0.10, there is a companion to lib_users, called fd_users. It basically
+does the same, but for open fds (/proc/PID/fd) that are marked as deleted. The
+intended use is to spot daemons that have had their log files deleted (or
+rotated and compressed), but not told to reopen the file.
+
 Output formats
 ==============
 
-Lib_users supports two output formats, human- and machine-readable:
+Lib_users supports three output formats/modes, Nagios plugin mode, human- and
+machine-readable:
 
 human-readable:
 16341 "supervising syslog-ng"
@@ -47,6 +53,13 @@ With the -m commandline parameter changes to this form:
 The lists are made up of comma-separated values. There are no provisions taken
 for the case of one of the libraries contain a ",". The command line is also
 not altered in any way. This may be fixed in a future version.
+
+Nagios mode conforms to the Nagios plugin spec. If there are more than the
+specified number of PIDs with deleted files/libs, the exit value signals
+WARNING or CRITICAL state. If there is a read or other error, the state
+signaled is UNKNOWN. All other cases are signaled as OK.
+
+Nagios mode output looks like this:
 
 Dependencies
 ============
