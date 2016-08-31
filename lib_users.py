@@ -24,9 +24,10 @@ __version__ = "0.9"
 # These are no true libs so don't make our process a deleted libs user
 # The first set is patterns, i.e. they are compared using fnmatch()
 # These are NOT regular expressions!
-NOLIBSPT = set(["/SYSV*", "/dev/shm/*", "/tmp/orcexec.*", "/var/run/nscd/db*"])
+NOLIBSPT = set(["/SYSV*", "/dev/shm/*", "/tmp/orcexec.*", "/var/run/nscd/db*",
+                "/memfd:*"])
 # This set is compared literally, i.e. no special characters
-NOLIBSNP = set(["/dev/zero", "/drm", "object", "/[aio]", "/memfd:xshmfence"])
+NOLIBSNP = set(["/dev/zero", "/drm", "object", "/[aio]"])
 
 
 def get_deleted_libs(map_file):
