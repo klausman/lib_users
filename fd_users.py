@@ -28,8 +28,8 @@ def get_deleted_files(fddir, ign_patterns, ign_literals):
     Args:
         fddir: name of the the FD infor directory, typically something like
                /proc/12345/fd/
-        ign_pattern: List of globs for files to ignore
-        ign_literal: List of fixed strings to ignore
+        ign_patterns: List of globs for files to ignore
+        ign_literals: List of fixed strings to ignore
     Returns:
         List of deleted files.
     """
