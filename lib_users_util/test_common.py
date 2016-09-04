@@ -177,7 +177,14 @@ class Testsystemdintegration(unittest.TestCase):
 
             def communicate(self):
                 """...with a lock"""
-                return("● sshd.service - OpenSSH Daemon", "stderr sez dat")
+                return(self._encode_stdin("● sshd.service - OpenSSH Daemon"),
+                       self._encode_stdin("stderr sez dat"))
+
+            def _encode_stdin(self, value):
+                if sys.version_info >= (3, 0):
+                    return value.encode(sys.stdin.encoding)
+                else:
+                    return value
 
         return mock_proc()
 
