@@ -106,6 +106,14 @@ so you decide whether the listed process is a false positive.
 Starting with lib_users 0.8, the `-i` and `-I` command line options can be used to
 supply additional to-be-ignored patterns and static strings.
 
+## Bugs
+
+There is currently one known bug that I don't have a simple solution for: when
+executing the tests, the test machinery patches the write() methods of
+sys.stderr and sys.stdout to capture program output. This works fin on Python
+3.4 and 3.5, but fails on 2.7 due to those methods being read-only. Patches to
+fix this problem are welcome.
+
 ## License
 
 This program is released under the GPL-2, which is included in distributions

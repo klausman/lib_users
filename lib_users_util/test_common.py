@@ -46,7 +46,7 @@ class TestGetProgargs(unittest.TestCase):
     def test_progargs(self):
         """Test length of argv using string pid"""
         m = unittest.mock.mock_open(read_data="x\x00b")
-        with unittest.mock.patch('__main__.open', m):
+        with unittest.mock.patch('__main__.open', m, create=True):
             pid = str(os.getpid())
             # Once with int, once with str
             self.assertGreater(len(common.get_progargs("%s" % pid)), 0)

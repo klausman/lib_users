@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 """Common utility functions for both lib_users and fd_users"""
-
 FDPROCFSPAT = "/proc/*/fd"
 LIBPROCFSPAT = "/proc/*/maps"
 PROCFSBASE = "/proc/"
