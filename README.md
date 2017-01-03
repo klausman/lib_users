@@ -10,7 +10,7 @@ that run for a long time and still use old libraries. In some cases this might
 be a security problem, as the library may be vulnerable. The script displays
 all the distinct argument lists of processes that have deleted files mapped.
 In essence, you get a list of processes and their PIDs. The reason why not
-just the first elemnt of the argument list is presented is that for scripts,
+just the first element of the argument list is presented is that for scripts,
 this will always be the interpreter name (i.e. `perl`, `python` etc.) which is
 not useful by itself.
 
@@ -19,7 +19,7 @@ positives - some programs have a pseudo file called `/SYSxxxx` mapped which
 obviously is not a library that was updated.
 
 As of v0.10, there is a companion to `lib_users`, called `fd_users`. It
-basically does the same, but for open fds (`/proc/PID/fd`) that are marked as
+basically does the same, but for open FDs (`/proc/PID/fd`) that are marked as
 deleted. The intended use is to spot daemons that have had their log files
 deleted (or rotated and compressed), but not told to reopen the file.
 
@@ -36,7 +36,7 @@ human-readable:
 12451,16244,16249,16252,16253,16254,26931,28912,29631,8810,894 "/usr/sbin/apache2 -D DEFAULT_VHOST -D INFO -D LANGUAGE -D DAV -D SVN -D MAILMAN -D PHP5 -D USERDIR -D SVN_AUTHZ -D SUEXEC -D SSL -D SSL_DEFAULT_VHOST -D AUTH_DIGEST -D PERL -d /usr/lib64/apache2 -f /etc/apache2/httpd.conf -k start"
 ```
 
-Here, the first column is a comma-seperated list of PIDs that share the same
+Here, the first column is a comma-separated list of PIDs that share the same
 command line. The second column is the command line in quotation marks. If the
 -s command line option is used, there will also be information about the names
 of the deleted files in use.
@@ -50,7 +50,7 @@ machine-readable:
 12451,16244,16249,16252,16253,16254,26931,28912,29631,8810,894;/lib64/libpcre.so.0.0.1;/usr/sbin/apache2 -D DEFAULT_VHOST -D INFO -D LANGUAGE -D DAV -D SVN -D MAILMAN -D PHP5 -D USERDIR -D SVN_AUTHZ -D SUEXEC -D SSL -D SSL_DEFAULT_VHOST -D AUTH_DIGEST -D PERL -d /usr/lib64/apache2 -f /etc/apache2/httpd.conf -k start
 ```
 
-With the -m commandline parameter changes to this form:
+With the -m command line parameter changes to this form:
 `<list of PIDs>;<list of deleted mapped files>;<command line>`
 
 The lists are made up of comma-separated values. There are no provisions taken
