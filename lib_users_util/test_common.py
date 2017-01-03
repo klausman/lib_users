@@ -11,17 +11,14 @@ from lib_users_util import common
 import unittest
 
 if sys.version_info.major == 2:
-    from cStringIO import StringIO
     from backports import unittest_mock
     unittest_mock.install()
 else:
-    from io import StringIO
     import unittest.mock
 
+
+# Create a shorthand to prevent lines from becoming very long
 MagicMock = unittest.mock.MagicMock
-
-from nose.plugins.skip import SkipTest
-
 
 # Some tests use sort() - make sure the sorting is the same regardless of
 # the users environment
@@ -55,7 +52,7 @@ class TestGetProgargs(unittest.TestCase):
             self.assertGreater(len(common.get_progargs(pid)), 0)
 
     def test_inaccesible_proc(self):
-        """Test that an inaccessible /proc does not break and yields an empty result"""
+        """An inaccessible /proc should not break but yield an empty result"""
         self.assertEquals(common.get_progargs("this is not a pid"), None)
 
 
@@ -218,7 +215,8 @@ class Testsystemdintegration(unittest.TestCase):
 
     def test_format1(self):
         """Test "classic" output format of systemctl status"""
-        retval = self.comm.query_systemctl("1", "sshd.service - OpenSSH Daemon")
+        retval = self.comm.query_systemctl("1",
+                                           "sshd.service - OpenSSH Daemon")
         self.assertEquals(retval, "sshd.service")
 
     def test_format2(self):

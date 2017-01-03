@@ -8,17 +8,16 @@ import argparse
 import sys
 import glob
 import fnmatch
-import subprocess
 import os.path
 
-from lib_users_util import common
 from collections import defaultdict
+from lib_users_util import common
 
 DELSUFFIX = " (deleted)"
 PERMWARNING = """\
 Warning: Some files could not be read. Note that fd_users has to be run as
 root to get a full list of deleted in-use libraries.\n"""
-__version__ = "0.9"
+__version__ = "0.10"
 
 
 def get_deleted_files(fddir, ign_patterns, ign_literals):

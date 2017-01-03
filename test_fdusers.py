@@ -4,21 +4,12 @@ Test suite for fd_users
 To be run through nose, not executed directly.
 """
 # -*- coding: utf8 -*-
-import os
-import sys
 import locale
 import fd_users
 import unittest
 import unittest.mock
 
 MagicMock = unittest.mock.MagicMock
-
-from nose.plugins.skip import SkipTest
-
-if sys.version.startswith("2"):
-    from cStringIO import StringIO
-else:
-    from io import StringIO
 
 
 # Some tests use sort() - make sure the sorting is the same regardless of
@@ -83,7 +74,6 @@ class TestGetDeletedFiles(unittest.TestCase):
 
     def testMixedFileStates(self):
         fdlist = ["/nonexistant/1/fd/1", "/nonexistant/1/fd/2"]
-        filelist = ["/some/other/file (deleted)", "/some/other/file2"]
         self.f_u.glob.glob = MagicMock(return_value=fdlist)
         self.f_u.os.readlink = MagicMock(
             return_value="/some/other/file (deleted)")
@@ -98,7 +88,6 @@ class TestGetDeletedFiles(unittest.TestCase):
 
     def testMixedFileStatesWithLiteral(self):
         fdlist = ["/nonexistant/1/fd/1", "/nonexistant/1/fd/2"]
-        filelist = ["/some/other/file (deleted)", "/some/other/file2"]
         self.f_u.glob.glob = MagicMock(return_value=fdlist)
         self.f_u.os.readlink = MagicMock(
             return_value="/some/other/file (deleted)")
@@ -114,7 +103,6 @@ class TestGetDeletedFiles(unittest.TestCase):
 
     def testMixedFileStatesWithLiteralNomatch(self):
         fdlist = ["/nonexistant/1/fd/1", "/nonexistant/1/fd/2"]
-        filelist = ["/some/other/file (deleted)", "/some/other/file2"]
         self.f_u.glob.glob = MagicMock(return_value=fdlist)
         self.f_u.os.readlink = MagicMock(
             return_value="/some/other/file (deleted)")
@@ -130,7 +118,6 @@ class TestGetDeletedFiles(unittest.TestCase):
 
     def testMixedFileStatesWithPattern(self):
         fdlist = ["/nonexistant/1/fd/1", "/nonexistant/1/fd/2"]
-        filelist = ["/some/other/file (deleted)", "/some/other/file2"]
         self.f_u.glob.glob = MagicMock(return_value=fdlist)
         self.f_u.os.readlink = MagicMock(
             return_value="/some/other/file (deleted)")
@@ -146,7 +133,6 @@ class TestGetDeletedFiles(unittest.TestCase):
 
     def testMixedFileStatesWithPatternNomatch(self):
         fdlist = ["/nonexistant/1/fd/1", "/nonexistant/1/fd/2"]
-        filelist = ["/some/other/file (deleted)", "/some/other/file2"]
         self.f_u.glob.glob = MagicMock(return_value=fdlist)
         self.f_u.os.readlink = MagicMock(
             return_value="/some/other/file (deleted)")

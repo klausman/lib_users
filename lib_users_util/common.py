@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """Common utility functions for both lib_users and fd_users"""
-FDPROCFSPAT = "/proc/*/fd"
-LIBPROCFSPAT = "/proc/*/maps"
-PROCFSBASE = "/proc/"
-
 import subprocess
 import sys
 
 from collections import defaultdict
+
+FDPROCFSPAT = "/proc/*/fd"
+LIBPROCFSPAT = "/proc/*/maps"
+PROCFSBASE = "/proc/"
+
 
 def get_progargs(pid):
     """
@@ -18,6 +19,7 @@ def get_progargs(pid):
     except IOError:
         return None
     return argv.replace('\x00', ' ')
+
 
 def fmt_human(lib_users, options):
     """
@@ -62,6 +64,7 @@ def fmt_machine(lib_users):
         res.append("%s;%s;%s" % (pidlist, files, argv.strip()))
     return "\n".join(res)
 
+
 def query_systemctl(pid, output=None):
     """
     Run systemctl status [pid], return the first token of the first line
@@ -70,11 +73,11 @@ def query_systemctl(pid, output=None):
     the corresponding cgroup. If output is not None, do not run systemctl,
     instead use output as if it was provided by it.
     """
-    # Since there is no way to query systemd for the unit a given PID belongs to
-    # in a way that yields machine-readable output ("status" knows about PIDs,
-    # but has only human-readable output, "show" has machine-readable output,
-    # but doesn't know about PIDs), we have to do ad hoc parsing. So far, the
-    # following formats have been encountered in the wild:
+    # Since there is no way to query systemd for the unit a given PID belongs
+    # to in a way that yields machine-readable output ("status" knows about
+    # PIDs, but has only human-readable output, "show" has machine-readable
+    # output, but doesn't know about PIDs), we have to do ad hoc parsing. So
+    # far, the following formats have been encountered in the wild:
     # sshd.service - OpenSSH Daemon
     # ● sshd.service - OpenSSH Daemon
 
@@ -117,5 +120,3 @@ def get_services(lib_users):
         output.append("%s belong to %s" % (",".join(value), key))
 
     return "\n".join(output)
-
-

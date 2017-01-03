@@ -10,16 +10,15 @@ import argparse
 import sys
 import glob
 import fnmatch
-import subprocess
 
-from lib_users_util import common
 from os.path import normpath
 from collections import defaultdict
+from lib_users_util import common
 
 PERMWARNING = """\
 Warning: Some files could not be read. Note that lib_users has to be run as
 root to get a full list of deleted in-use libraries.\n"""
-__version__ = "0.9"
+__version__ = "0.10"
 
 # These are no true libs so don't make our process a deleted libs user
 # The first set is patterns, i.e. they are compared using fnmatch()
