@@ -1,9 +1,10 @@
+build/**
+.coverage
+dist/**
+dists/**
+lib_users.egg-info/**
+MANIFEST.in
 *.pyc
 **/*.pyc
-**/.*.swp
 .*.swp
-.coverage
-dists/**
-build/**
-dist/**
-lib_users.egg-info/**
+**/.*.swp
