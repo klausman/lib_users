@@ -40,6 +40,12 @@ class _options(object):
         self.ignore_literal = {}
 
 
+class _mock_stdx(object):
+    """A stand-in for sys.stdout/stderr"""
+    def write(self, *_, **_unused):
+        """Discard everything"""
+
+
 class TestGetDeletedFiles(unittest.TestCase):
 
     def setUp(self):
@@ -168,17 +174,17 @@ class Testlibuserswithmocks(unittest.TestCase):
 
         self._orig_get_deleted_files = self.f_u.get_deleted_files
         self._orig_get_progargs = self.f_u.common.get_progargs
-        self._orig_stderr_write = self.f_u.sys.stderr.write
+        self._orig_stderr = self.f_u.sys.stderr
 
         self.f_u.get_deleted_files = self._mock_get_deleted_files
         self.f_u.common.get_progargs = self._mock_get_progargs
-        self.f_u.sys.stderr.write = self._mock_sys_stderr_write
+        self.f_u.sys.stderr = _mock_stdx()
 
     def tearDown(self):
         """Restore mocked out functions"""
         self.f_u.get_deleted_files = self._orig_get_deleted_files
         self.f_u.common.get_progargs = self._orig_get_progargs
-        self.f_u.sys.stderr.write = self._orig_stderr_write
+        self.f_u.sys.stderr = self._orig_stderr
 
     def _mock_get_deleted_files(*unused_args):
         """Mock out get_deleted_files, always returns set(["foo"])"""
@@ -190,9 +196,6 @@ class Testlibuserswithmocks(unittest.TestCase):
             "/usr/bin/python4 spam.py --eggs --ham jam"
         """
         return "/usr/bin/python4 spam.py --eggs --ham jam"
-
-    def _mock_sys_stderr_write(*_, **_unused):
-        """Mock write() that swallows all args"""
 
     def test_actual(self):
         """Test main() in human mode"""

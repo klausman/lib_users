@@ -1,24 +1,26 @@
+# -*- coding: utf8 -*-
 """
 Test suite for common
 
 To be run through nose, not executed directly.
 """
-# -*- coding: utf8 -*-
 import os
 import sys
 import locale
 from lib_users_util import common
 import unittest
-import unittest.mock
+
+if sys.version_info.major == 2:
+    from cStringIO import StringIO
+    from backports import unittest_mock
+    unittest_mock.install()
+else:
+    from io import StringIO
+    import unittest.mock
 
 MagicMock = unittest.mock.MagicMock
 
 from nose.plugins.skip import SkipTest
-
-if sys.version.startswith("2"):
-    from cStringIO import StringIO
-else:
-    from io import StringIO
 
 
 # Some tests use sort() - make sure the sorting is the same regardless of
@@ -150,13 +152,13 @@ class Testsystemdintegration(unittest.TestCase):
         self.golden = "1,2,3 belong to service.shmervice"
         self._orig_query_systemctl = self.comm.query_systemctl
         self._orig_Popen = self.comm.subprocess.Popen
-        self._orig_stderr_write = self.comm.sys.stderr.write
+        self._orig_stderr = self.comm.sys.stderr
 
     def tearDown(self):
         """Restore mocked out functions"""
         self.comm.query_systemctl = self._orig_query_systemctl
         self.comm.subprocess.Popen = self._orig_Popen
-        self.comm.sys.stderr.write = self._orig_stderr_write
+        self.comm.sys.stderr = self._orig_stderr
 
     def _mock_query_systemctl(self, _):
         """Mock out query_systemctl, always return "service.shmervice" """
@@ -191,9 +193,6 @@ class Testsystemdintegration(unittest.TestCase):
     def _mock_Popen_broken(self, *_, **_unused):
         """Mock out subprocess.Popen, always raising OSError"""
         raise OSError("Another Dummy Reason")
-
-    def _mock_sys_stderr_write(*_, **_unused):
-        """Mock write() that swallows all args"""
 
     def test_get_services(self):
         """Test get_services"""

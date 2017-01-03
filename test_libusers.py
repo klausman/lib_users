@@ -25,6 +25,11 @@ locale.setlocale(locale.LC_ALL, "POSIX")
 # Shorthand
 EMPTYSET = frozenset()
 
+class _mock_stdx(object):
+    """A stand-in for sys.stdout/stderr"""
+    def write(self, *_, **_unused):
+        """Discard everything"""
+
 
 class _options(object):
     """Mock options object that mimicks the bare necessities"""
@@ -42,15 +47,13 @@ class Testlibusers(unittest.TestCase):
 
     def setUp(self):
         self.l_u = lib_users
-        self._orig_stderr_write = self.l_u.sys.stderr.write
+        discard = _mock_stdx()
+        self._orig_stderr = self.l_u.sys.stderr
 
-        self.l_u.sys.stderr.write = self._mock_sys_stderr_write
+        self.l_u.sys.stderr = _mock_stdx()
 
     def tearDown(self):
-        self.l_u.sys.stderr.write = self._orig_stderr_write
-
-    def _mock_sys_stderr_write(*_, **_unused):
-        """Mock write() that swallows all args"""
+        self.l_u.sys.stderr = self._orig_stderr
 
     def test_nonlibs(self):
         """Test detection of mappings that aren't libs"""
@@ -157,17 +160,17 @@ class Testlibuserswithmocks(unittest.TestCase):
 
         self._orig_get_deleted_libs = self.l_u.get_deleted_libs
         self._orig_get_progargs = self.l_u.common.get_progargs
-        self._orig_stderr_write = self.l_u.sys.stderr.write
+        self._orig_stderr = self.l_u.sys.stderr
 
         self.l_u.get_deleted_libs = self._mock_get_deleted_libs
         self.l_u.common.get_progargs = self._mock_get_progargs
-        self.l_u.sys.stderr.write = self._mock_sys_stderr_write
+        self.l_u.sys.stderr = _mock_stdx()
 
     def tearDown(self):
         """Restore mocked out functions"""
         self.l_u.get_deleted_libs = self._orig_get_deleted_libs
         self.l_u.get_progargs = self._orig_get_progargs
-        self.l_u.sys.stderr.write = self._orig_stderr_write
+        self.l_u.sys.stderr = self._orig_stderr
 
     def _mock_get_deleted_libs(*unused_args):
         """Mock out get_deleted_files, always returns set(["foo"])"""
@@ -179,9 +182,6 @@ class Testlibuserswithmocks(unittest.TestCase):
             "/usr/bin/python4 spam.py --eggs --ham jam"
         """
         return "/usr/bin/python4 spam.py --eggs --ham jam"
-
-    def _mock_sys_stderr_write(*_, **_unused):
-        """Mock write() that swallows all args"""
 
     def test_actual(self):
         """Test main() in human mode"""

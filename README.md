@@ -64,7 +64,9 @@ uses modules from Pythons standard library, so apart from a Python
 installation, there are no external dependencies.
 
 If you want to run the test suite easily, install the Nose Python testing
-framework. This is not needed for day-to-day operations.
+framework. This is not needed for day-to-day operations. Running the tests with
+Python 2.7 also requires the backported mock submodule of unittest
+(https://github.com/jaraco/backports.unittest_mock)
 
 ## Limitations
 
@@ -105,14 +107,6 @@ so you decide whether the listed process is a false positive.
 
 Starting with lib_users 0.8, the `-i` and `-I` command line options can be used to
 supply additional to-be-ignored patterns and static strings.
-
-## Bugs
-
-There is currently one known bug that I don't have a simple solution for: when
-executing the tests, the test machinery patches the write() methods of
-sys.stderr and sys.stdout to capture program output. This works fin on Python
-3.4 and 3.5, but fails on 2.7 due to those methods being read-only. Patches to
-fix this problem are welcome.
 
 ## License
 
