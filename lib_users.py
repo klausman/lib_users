@@ -99,7 +99,6 @@ def main(argv):
             deletedlibs = get_deleted_libs(mapsfile)
         except IOError as exc:
             read_failure = True
-            print(exc)
             continue
 
         if deletedlibs:
