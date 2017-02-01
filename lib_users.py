@@ -24,7 +24,7 @@ __version__ = "0.10"
 # The first set is patterns, i.e. they are compared using fnmatch()
 # These are NOT regular expressions!
 NOLIBSPT = set(["/SYSV*", "/dev/shm/*", "/tmp/orcexec.*", "/var/run/nscd/db*",
-                "/memfd:*"])
+                "/memfd:*", "/run/user/*/orcexec*"])
 # This set is compared literally, i.e. no special characters
 NOLIBSNP = set(["/dev/zero", "/drm", "object", "/[aio]"])
 
