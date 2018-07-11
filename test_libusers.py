@@ -70,6 +70,9 @@ class Testlibusers(unittest.TestCase):
         pseudofile.append(
             "7fbb00535000-7fbb00556000 rw-s 00000000 00:0a 13493193 "
             "/[aio] (deleted)")
+        pseudofile.append(
+            "7fbb00535000-7fbb00556000 rw-s 00000000 00:0a 13493193 "
+            "/i915 (deleted)")
         pseudofile = StringIO("\n".join(pseudofile))
         res = lib_users.get_deleted_libs(pseudofile)
         self.assertEquals(res, EMPTYSET)
@@ -92,12 +95,15 @@ class Testlibusers(unittest.TestCase):
         pseudofile.append(
             "7f02a4202000-7f02a6202000 rw-s 00000000 00:04 425984 "
             "/lib/[aio] (deleted)")
+        pseudofile.append(
+            "7fbb00535000-7fbb00556000 rw-s 00000000 00:0a 13493193 "
+            "/usr/lib/i915 (deleted)")
         pseudofile = StringIO("\n".join(pseudofile))
         res = list(lib_users.get_deleted_libs(pseudofile))
         res.sort()
         self.assertEquals(
             res, ['/lib/SYSV00000000', '/lib/[aio]', '/lib/dev/shm/foo',
-                  '/lib/dev/zero', '/lib/drm'])
+                  '/lib/dev/zero', '/lib/drm', '/usr/lib/i915'])
 
     def test_openvz_maps(self):
         """Test that OpenVZ maps are handled correctly"""
