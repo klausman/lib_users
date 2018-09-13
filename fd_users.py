@@ -19,7 +19,7 @@ PERMWARNINGUID0="""\
 Warning: Some files could not be read. Note that fd_users has to be run as
 root to get a full list of deleted in-use libraries.\n"""
 
-__version__ = "0.11"
+__version__ = "0.12"
 
 
 def get_deleted_files(fddir, ign_patterns, ign_literals):
