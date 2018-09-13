@@ -10,12 +10,14 @@ import argparse
 import sys
 import glob
 import fnmatch
+import os
 
 from os.path import normpath
 from collections import defaultdict
 from lib_users_util import common
 
-PERMWARNING = """\
+PERMWARNING = """Warning: Some files could not be read."""
+PERMWARNINGUID0="""\
 Warning: Some files could not be read. Note that lib_users has to be run as
 root to get a full list of deleted in-use libraries.\n"""
 __version__ = "0.10"
@@ -109,7 +111,10 @@ def main(argv):
             users[argv][1].update(deletedlibs)
 
     if read_failure:
-        sys.stderr.write(PERMWARNING)
+        if os.geteuid() == 0:
+            sys.stderr.write(PERMWARNING)
+        else:
+            sys.stderr.write(PERMWARNINGUID0)
 
     if len(users) > 0:
         if options.machine_readable:
