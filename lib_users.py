@@ -16,8 +16,8 @@ from os.path import normpath
 from collections import defaultdict
 from lib_users_util import common
 
-PERMWARNING = """Warning: Some files could not be read."""
-PERMWARNINGUID0="""\
+PERMWARNINGUID0 = """Warning: Some files could not be read.\n"""
+PERMWARNING="""\
 Warning: Some files could not be read. Note that lib_users has to be run as
 root to get a full list of deleted in-use libraries.\n"""
 
@@ -113,9 +113,9 @@ def main(argv):
 
     if read_failure:
         if os.geteuid() == 0:
-            sys.stderr.write(PERMWARNING)
-        else:
             sys.stderr.write(PERMWARNINGUID0)
+        else:
+            sys.stderr.write(PERMWARNING)
 
     if len(users) > 0:
         if options.machine_readable:
