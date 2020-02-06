@@ -15,7 +15,8 @@ def get_progargs(pid):
     Get argv for a given PID and return it as a string (spaces-sep'd).
     """
     try:
-        argv = open("%s/%s/cmdline" % (PROCFSBASE, pid)).read()
+        with open("%s/%s/cmdline" % (PROCFSBASE, pid)) as fd:
+            argv = fd.read()
     except IOError:
         return None
     return argv.replace('\x00', ' ')

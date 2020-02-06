@@ -17,11 +17,11 @@ from collections import defaultdict
 from lib_users_util import common
 
 PERMWARNINGUID0 = """Warning: Some files could not be read.\n"""
-PERMWARNING="""\
+PERMWARNING = """\
 Warning: Some files could not be read. Note that lib_users has to be run as
 root to get a full list of deleted in-use libraries.\n"""
 
-__version__ = "0.13"
+__version__ = "0.14"
 
 # These are no true libs so don't make our process a deleted libs user
 # The first set is patterns, i.e. they are compared using fnmatch()
@@ -29,7 +29,8 @@ __version__ = "0.13"
 NOLIBSPT = set(["/SYSV*", "/dev/shm/*", "/tmp/orcexec.*", "/var/run/nscd/db*",
                 "/memfd:*", "/run/user/*/orcexec*"])
 # This set is compared literally, i.e. no special characters
-NOLIBSNP = set(["/dev/zero", "/drm", "object", "/[aio]", "/i915", "/anon_hugepage"])
+NOLIBSNP = set(["/dev/zero", "/drm", "object",
+                "/[aio]", "/i915", "/anon_hugepage"])
 
 
 def get_deleted_libs(map_file):
@@ -103,6 +104,7 @@ def main(argv):
         except IOError as exc:
             read_failure = True
             continue
+        mapsfile.close()
 
         if deletedlibs:
             argv = common.get_progargs(pid)
@@ -125,6 +127,7 @@ def main(argv):
         if options.services:
             print()
             print(common.get_services(users))
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

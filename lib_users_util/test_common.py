@@ -53,7 +53,7 @@ class TestGetProgargs(unittest.TestCase):
 
     def test_inaccesible_proc(self):
         """An inaccessible /proc should not break but yield an empty result"""
-        self.assertEquals(common.get_progargs("this is not a pid"), None)
+        self.assertEqual(common.get_progargs("this is not a pid"), None)
 
 
 class TestFormatting(unittest.TestCase):
@@ -66,23 +66,23 @@ class TestFormatting(unittest.TestCase):
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
         outp = '1,2 "argv1"'
         print(common.fmt_human(inp, options))
-        self.assertEquals(common.fmt_human(inp, options), outp)
+        self.assertEqual(common.fmt_human(inp, options), outp)
 
         inp = {"argv1": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1"'
         print(common.fmt_human(inp, options))
-        self.assertEquals(common.fmt_human(inp, options), outp)
+        self.assertEqual(common.fmt_human(inp, options), outp)
 
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1 argv2"'
         print(common.fmt_human(inp, options))
-        self.assertEquals(common.fmt_human(inp, options), outp)
+        self.assertEqual(common.fmt_human(inp, options), outp)
 
         inp = {}
         outp = ''
         print(common.fmt_human(inp, options))
-        self.assertEquals(common.fmt_human(inp, options), outp)
+        self.assertEqual(common.fmt_human(inp, options), outp)
 
     def test_fmt_human_with_libs(self):
         """Test function for human-readable output"""
@@ -91,51 +91,51 @@ class TestFormatting(unittest.TestCase):
         options = _options()
         options.showitems = True
         print(common.fmt_human(inp, options))
-        self.assertEquals(common.fmt_human(inp, options), outp)
+        self.assertEqual(common.fmt_human(inp, options), outp)
 
         inp = {"argv1": (set(["1"]), set(["l1"]))}
         outp = '1 "argv1" uses l1'
         print(common.fmt_human(inp, options))
-        self.assertEquals(common.fmt_human(inp, options), outp)
+        self.assertEqual(common.fmt_human(inp, options), outp)
 
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1 argv2" uses l1,l2'
         print(common.fmt_human(inp, options))
-        self.assertEquals(common.fmt_human(inp, options), outp)
+        self.assertEqual(common.fmt_human(inp, options), outp)
 
         inp = {}
         outp = ''
         print(common.fmt_human(inp, options))
-        self.assertEquals(common.fmt_human(inp, options), outp)
+        self.assertEqual(common.fmt_human(inp, options), outp)
 
     def test_fmt_machine(self):
         """Test function for machine-readable output"""
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
         outp = '1,2;l1,l2;argv1'
         print(common.fmt_machine(inp))
-        self.assertEquals(common.fmt_machine(inp), outp)
+        self.assertEqual(common.fmt_machine(inp), outp)
 
         inp = {"argv1": (set(["1"]), set(["l1", "l2"]))}
         outp = '1;l1,l2;argv1'
         print(common.fmt_machine(inp))
-        self.assertEquals(common.fmt_machine(inp), outp)
+        self.assertEqual(common.fmt_machine(inp), outp)
 
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1;l1,l2;argv1 argv2'
         print(common.fmt_machine(inp))
-        self.assertEquals(common.fmt_machine(inp), outp)
+        self.assertEqual(common.fmt_machine(inp), outp)
 
         inp = {"argv1 argv2 ": (set(["1"]), set())}
         outp = '1;;argv1 argv2'
         print(common.fmt_machine(inp))
-        self.assertEquals(common.fmt_machine(inp), outp)
+        self.assertEqual(common.fmt_machine(inp), outp)
 
         inp = {}
         outp = ''
         print(common.fmt_machine(inp))
-        self.assertEquals(common.fmt_machine(inp), outp)
+        self.assertEqual(common.fmt_machine(inp), outp)
 
 
 class Testsystemdintegration(unittest.TestCase):
@@ -194,7 +194,7 @@ class Testsystemdintegration(unittest.TestCase):
     def test_get_services(self):
         """Test get_services"""
         self.comm.query_systemctl = self._mock_query_systemctl
-        self.assertEquals(common.get_services(self.query), self.golden)
+        self.assertEqual(common.get_services(self.query), self.golden)
 
     def test_get_services_with_broken_systemctl(self):
         """Test get_services with broken systctl"""
@@ -205,7 +205,7 @@ class Testsystemdintegration(unittest.TestCase):
         """Test test_query_systemctl with mocked Popen"""
         self.comm.subprocess.Popen = self._mock_Popen
         ret = self.comm.query_systemctl("1")
-        self.assertEquals(ret, "sshd.service")
+        self.assertEqual(ret, "sshd.service")
 
     def test_query_systemctl_broken(self):
         """Test test_query_systemctl with mocked broken Popen"""
@@ -217,15 +217,15 @@ class Testsystemdintegration(unittest.TestCase):
         """Test "classic" output format of systemctl status"""
         retval = self.comm.query_systemctl("1",
                                            "sshd.service - OpenSSH Daemon")
-        self.assertEquals(retval, "sshd.service")
+        self.assertEqual(retval, "sshd.service")
 
     def test_format2(self):
         """Test first iteration output format of systemctl status"""
         retval = self.comm.query_systemctl(
             "1", "● sshd.service - OpenSSH Daemon")
-        self.assertEquals(retval, "sshd.service")
+        self.assertEqual(retval, "sshd.service")
 
     def test_no_match(self):
         retval = self.comm.query_systemctl(
             "1", "No unit for PID 1 is loaded.\nBlah")
-        self.assertEquals(retval, None)
+        self.assertEqual(retval, None)

@@ -25,6 +25,7 @@ EMPTYSET = frozenset()
 
 class _mock_stdx(object):
     """A stand-in for sys.stdout/stderr"""
+
     def write(self, *_, **_unused):
         """Discard everything"""
 

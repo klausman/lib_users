@@ -15,11 +15,11 @@ from lib_users_util import common
 
 DELSUFFIX = " (deleted)"
 PERMWARNING = """Warning: Some files could not be read."""
-PERMWARNINGUID0="""\
+PERMWARNINGUID0 = """\
 Warning: Some files could not be read. Note that fd_users has to be run as
 root to get a full list of deleted in-use libraries.\n"""
 
-__version__ = "0.13"
+__version__ = "0.14"
 
 
 def get_deleted_files(fddir, ign_patterns, ign_literals):
@@ -126,6 +126,7 @@ def main(argv):
         if options.services:
             print()
             print(common.get_services(users))
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
