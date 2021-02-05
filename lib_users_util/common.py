@@ -88,8 +88,10 @@ def query_systemctl(pid, output=None):
             cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, _ = pcomm.communicate()
         output = output.decode(sys.stdin.encoding or "utf-8")
-    if "No unit for PID %s is loaded." % (pid) in output:
-        return None
+
+        if pcomm.returncode:
+            return None
+
     header = output.split("\n")[0]
     fields = header.split("-")[0].split()
     if len(fields) == 1:
