@@ -92,6 +92,9 @@ def query_systemctl(pid, output=None):
         if pcomm.returncode:
             return None
 
+    if "-" not in output:
+        return None
+
     header = output.split("\n")[0]
     fields = header.split("-")[0].split()
     if len(fields) == 1:

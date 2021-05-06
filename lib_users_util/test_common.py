@@ -172,7 +172,7 @@ class Testsystemdintegration(unittest.TestCase):
             """A mock in a mock of a sock."""
 
             def __init__(self):
-                pass
+                self.returncode = 0
 
             def communicate(self):
                 """...with a lock"""
