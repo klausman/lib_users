@@ -1,7 +1,7 @@
 """
 Test suite for lib_users
 
-To be run through nose, not executed directly.
+To be run through nose2, not executed directly.
 """
 # -*- coding: utf8 -*-
 import sys
@@ -47,11 +47,14 @@ class Testlibusers(unittest.TestCase):
     def setUp(self):
         self.l_u = lib_users
         self._orig_stderr = self.l_u.sys.stderr
+        self._orig_stdout = self.l_u.sys.stderr
 
         self.l_u.sys.stderr = _mock_stdx()
+        self.l_u.sys.stdout = _mock_stdx()
 
     def tearDown(self):
         self.l_u.sys.stderr = self._orig_stderr
+        self.l_u.sys.stdout = self._orig_stdout
 
     def test_nonlibs(self):
         """Test detection of mappings that aren't libs"""
@@ -179,6 +182,10 @@ class Testlibuserswithmocks(unittest.TestCase):
         self._orig_get_deleted_libs = self.l_u.get_deleted_libs
         self._orig_get_progargs = self.l_u.common.get_progargs
         self._orig_stderr = self.l_u.sys.stderr
+        self._orig_stdout = self.l_u.sys.stderr
+
+        self.l_u.sys.stderr = _mock_stdx()
+        self.l_u.sys.stdout = _mock_stdx()
 
         self.l_u.get_deleted_libs = self._mock_get_deleted_libs
         self.l_u.common.get_progargs = self._mock_get_progargs
@@ -187,8 +194,9 @@ class Testlibuserswithmocks(unittest.TestCase):
     def tearDown(self):
         """Restore mocked out functions"""
         self.l_u.get_deleted_libs = self._orig_get_deleted_libs
-        self.l_u.get_progargs = self._orig_get_progargs
+        self.l_u.common.get_progargs = self._orig_get_progargs
         self.l_u.sys.stderr = self._orig_stderr
+        self.l_u.sys.stdout = self._orig_stdout
 
     def _mock_get_deleted_libs(*unused_args):
         """Mock out get_deleted_files, always returns set(["foo"])"""

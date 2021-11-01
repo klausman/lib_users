@@ -1,6 +1,6 @@
-# Lib_users
+# `Lib_users`
 
-Lib_users is a Python script that goes through `/proc/*/maps` and finds all
+`Lib_users` is a Python script that goes through `/proc/*/maps` and finds all
 cases of libraries being mapped but marked as deleted. It then extracts the
 programs name and arguments from `/proc/<pid>/cmdline`. This information is
 presented to the user so that those processes can be restarted.
@@ -25,7 +25,7 @@ deleted (or rotated and compressed), but not told to reopen the file.
 
 ## Output formats
 
-Lib_users supports two output formats/modes, human- and machine-readable:
+`Lib_users` supports two output formats/modes, human- and machine-readable:
 
 human-readable:
 
@@ -65,8 +65,8 @@ installation, there are no external dependencies.
 
 If you want to run the test suite easily, install the Nose Python testing
 framework. This is not needed for day-to-day operations. Running the tests with
-Python 2.7 also requires the backported mock submodule of unittest
-(https://github.com/jaraco/backports.unittest_mock)
+Python 2.7 also requires the backported mock submodule of
+[unittest](https://github.com/jaraco/backports.unittest_mock)
 
 ## Limitations
 
@@ -76,7 +76,7 @@ that have the same maps file structure as a Linux system).
 If the script is not run as root, it can not display all processes on the
 system that use deleted libs. In the spirit of graceful degradation, it will
 then only display the information for processes it has access to. Usually this
-is the list of processes owned by the user that runs lib_users. It will also
+is the list of processes owned by the user that runs `lib_users`. It will also
 output a warning to stderr that it could not read all map files.
 
 The `-S` command line switch relies on systemdctl and its output. Therefore, it
@@ -85,16 +85,16 @@ that the output it produces is advisory and entirely reliant on systemd.
 
 ## False positives
 
-Some programs open temporary files and immediately delete them. This is done
-so they don't leave those files behind after a crash. As a consequence,
-lib_users may report these programs. A notable example are programs that use
+Some programs open temporary files and immediately delete them. This is done so
+they don't leave those files behind after a crash. As a consequence,
+`lib_users` may report these programs. A notable example are programs that use
 liborc, the Oil Runtime Compiler. Here's an example, the media player
 quodlibet:
 
 ```
-$ lib_users 
+$ lib_users
 2753 "/usr/bin/python2.7 /usr/bin/quodlibet"
-$ grep deleted /proc/2753/maps 
+$ grep deleted /proc/2753/maps
 7f409dd0b000-7f409dd1b000 rw-s 00000000 08:01 1179661 /tmp/orcexec.sqa9cE (deleted)
 ```
 
@@ -105,8 +105,8 @@ result in a different liborc tempfile show up as deleted.
 Using the -s command line option will show you which deleted files are in use,
 so you decide whether the listed process is a false positive.
 
-Starting with lib_users 0.8, the `-i` and `-I` command line options can be used to
-supply additional to-be-ignored patterns and static strings.
+Starting with `lib_users` v0.8, the `-i` and `-I` command line options can be
+used to supply additional to-be-ignored patterns and static strings.
 
 ## License
 

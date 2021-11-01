@@ -2,7 +2,7 @@
 """
 Test suite for common
 
-To be run through nose, not executed directly.
+To be run through nose2, not executed directly.
 """
 import os
 import sys
@@ -28,6 +28,12 @@ locale.setlocale(locale.LC_ALL, "POSIX")
 EMPTYSET = frozenset()
 
 
+class _mock_stdx(object):
+    """A stand-in for sys.stdout/stderr"""
+
+    def write(self, *_, **_unused):
+        """Discard everything"""
+
 class _options(object):
     """Mock options object that mimicks the bare necessities"""
 
@@ -41,6 +47,18 @@ class _options(object):
 
 
 class TestGetProgargs(unittest.TestCase):
+
+    def setUp(self):
+        self._comm = common
+        self._orig_stderr = self._comm.sys.stderr
+        self._orig_stdout = self._comm.sys.stderr
+
+        self._comm.sys.stderr = _mock_stdx()
+        self._comm.sys.stdout = _mock_stdx()
+
+    def tearDown(self):
+        self._comm.sys.stderr = self._orig_stderr
+        self._comm.sys.stdout = self._orig_stdout
 
     def test_progargs(self):
         """Test length of argv using string pid"""
@@ -65,23 +83,19 @@ class TestFormatting(unittest.TestCase):
         options = _options()
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
         outp = '1,2 "argv1"'
-        print(common.fmt_human(inp, options))
         self.assertEqual(common.fmt_human(inp, options), outp)
 
         inp = {"argv1": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1"'
-        print(common.fmt_human(inp, options))
         self.assertEqual(common.fmt_human(inp, options), outp)
 
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1 argv2"'
-        print(common.fmt_human(inp, options))
         self.assertEqual(common.fmt_human(inp, options), outp)
 
         inp = {}
         outp = ''
-        print(common.fmt_human(inp, options))
         self.assertEqual(common.fmt_human(inp, options), outp)
 
     def test_fmt_human_with_libs(self):
@@ -90,18 +104,15 @@ class TestFormatting(unittest.TestCase):
         outp = '1,2 "argv1" uses l1,l2'
         options = _options()
         options.showitems = True
-        print(common.fmt_human(inp, options))
         self.assertEqual(common.fmt_human(inp, options), outp)
 
         inp = {"argv1": (set(["1"]), set(["l1"]))}
         outp = '1 "argv1" uses l1'
-        print(common.fmt_human(inp, options))
         self.assertEqual(common.fmt_human(inp, options), outp)
 
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1 "argv1 argv2" uses l1,l2'
-        print(common.fmt_human(inp, options))
         self.assertEqual(common.fmt_human(inp, options), outp)
 
         inp = {}
@@ -113,28 +124,23 @@ class TestFormatting(unittest.TestCase):
         """Test function for machine-readable output"""
         inp = {"argv1": (set(["1", "2"]), set(["l1", "l2"]))}
         outp = '1,2;l1,l2;argv1'
-        print(common.fmt_machine(inp))
         self.assertEqual(common.fmt_machine(inp), outp)
 
         inp = {"argv1": (set(["1"]), set(["l1", "l2"]))}
         outp = '1;l1,l2;argv1'
-        print(common.fmt_machine(inp))
         self.assertEqual(common.fmt_machine(inp), outp)
 
         # The space at the end of this argv should go away.
         inp = {"argv1 argv2 ": (set(["1"]), set(["l1", "l2"]))}
         outp = '1;l1,l2;argv1 argv2'
-        print(common.fmt_machine(inp))
         self.assertEqual(common.fmt_machine(inp), outp)
 
         inp = {"argv1 argv2 ": (set(["1"]), set())}
         outp = '1;;argv1 argv2'
-        print(common.fmt_machine(inp))
         self.assertEqual(common.fmt_machine(inp), outp)
 
         inp = {}
         outp = ''
-        print(common.fmt_machine(inp))
         self.assertEqual(common.fmt_machine(inp), outp)
 
 
@@ -144,18 +150,23 @@ class Testsystemdintegration(unittest.TestCase):
 
     def setUp(self):
         """Set up golden data and save original function refs"""
-        self.comm = common
+        self._comm = common
         self.query = {"/usr/bin/foo": (("1", "2", "3"), ("libbar", "libbaz"))}
         self.golden = "1,2,3 belong to service.shmervice"
-        self._orig_query_systemctl = self.comm.query_systemctl
-        self._orig_Popen = self.comm.subprocess.Popen
-        self._orig_stderr = self.comm.sys.stderr
+        self._orig_query_systemctl = self._comm.query_systemctl
+        self._orig_Popen = self._comm.subprocess.Popen
+        self._orig_stderr = self._comm.sys.stderr
+        self._orig_stdout = self._comm.sys.stderr
+
+        self._comm.sys.stderr = _mock_stdx()
+        self._comm.sys.stdout = _mock_stdx()
 
     def tearDown(self):
         """Restore mocked out functions"""
-        self.comm.query_systemctl = self._orig_query_systemctl
-        self.comm.subprocess.Popen = self._orig_Popen
-        self.comm.sys.stderr = self._orig_stderr
+        self._comm.query_systemctl = self._orig_query_systemctl
+        self._comm.subprocess.Popen = self._orig_Popen
+        self._comm.sys.stderr = self._orig_stderr
+        self._comm.sys.stdout = self._orig_stdout
 
     def _mock_query_systemctl(self, _):
         """Mock out query_systemctl, always return "service.shmervice" """
@@ -193,39 +204,39 @@ class Testsystemdintegration(unittest.TestCase):
 
     def test_get_services(self):
         """Test get_services"""
-        self.comm.query_systemctl = self._mock_query_systemctl
+        self._comm.query_systemctl = self._mock_query_systemctl
         self.assertEqual(common.get_services(self.query), self.golden)
 
     def test_get_services_with_broken_systemctl(self):
         """Test get_services with broken systctl"""
-        self.comm.query_systemctl = self._mock_query_systemctl_broken
+        self._comm.query_systemctl = self._mock_query_systemctl_broken
         self.assertIn("Dummy Reason", common.get_services(self.query))
 
     def test_query_systemctl(self):
         """Test test_query_systemctl with mocked Popen"""
-        self.comm.subprocess.Popen = self._mock_Popen
-        ret = self.comm.query_systemctl("1")
+        self._comm.subprocess.Popen = self._mock_Popen
+        ret = self._comm.query_systemctl("1")
         self.assertEqual(ret, "sshd.service")
 
     def test_query_systemctl_broken(self):
         """Test test_query_systemctl with mocked broken Popen"""
-        self.comm.subprocess.Popen = self._mock_Popen_broken
+        self._comm.subprocess.Popen = self._mock_Popen_broken
         with self.assertRaises(OSError):
-            self.comm.query_systemctl("1")
+            self._comm.query_systemctl("1")
 
     def test_format1(self):
         """Test "classic" output format of systemctl status"""
-        retval = self.comm.query_systemctl("1",
+        retval = self._comm.query_systemctl("1",
                                            "sshd.service - OpenSSH Daemon")
         self.assertEqual(retval, "sshd.service")
 
     def test_format2(self):
         """Test first iteration output format of systemctl status"""
-        retval = self.comm.query_systemctl(
+        retval = self._comm.query_systemctl(
             "1", "● sshd.service - OpenSSH Daemon")
         self.assertEqual(retval, "sshd.service")
 
     def test_no_match(self):
-        retval = self.comm.query_systemctl(
+        retval = self._comm.query_systemctl(
             "1", "No unit for PID 1 is loaded.\nBlah")
         self.assertEqual(retval, None)

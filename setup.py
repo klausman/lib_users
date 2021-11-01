@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='lib_users',
-      version='0.14',
+      version='0.15',
       description='Checks /proc for libraries and files being mapped/open '
                   'but marked as deleted',
       author='Tobias Klausmann',

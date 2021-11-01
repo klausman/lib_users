@@ -1,7 +1,7 @@
 """
 Test suite for fd_users
 
-To be run through nose, not executed directly.
+To be run through nose2, not executed directly.
 """
 # -*- coding: utf8 -*-
 import locale
@@ -48,6 +48,11 @@ class TestGetDeletedFiles(unittest.TestCase):
         self.f_u = fd_users
         self._orig_glob_glob = self.f_u.glob.glob
         self._orig_os_readlink = self.f_u.os.readlink
+        self._orig_stderr = self.f_u.sys.stderr
+        self._orig_stdout = self.f_u.sys.stderr
+
+        self.f_u.sys.stderr = _mock_stdx()
+        self.f_u.sys.stdout = _mock_stdx()
 
     def tearDown(self):
         """Restore mocked out functions"""
@@ -162,10 +167,13 @@ class Testlibuserswithmocks(unittest.TestCase):
         self._orig_get_deleted_files = self.f_u.get_deleted_files
         self._orig_get_progargs = self.f_u.common.get_progargs
         self._orig_stderr = self.f_u.sys.stderr
+        self._orig_stdout = self.f_u.sys.stderr
 
         self.f_u.get_deleted_files = self._mock_get_deleted_files
         self.f_u.common.get_progargs = self._mock_get_progargs
+
         self.f_u.sys.stderr = _mock_stdx()
+        self.f_u.sys.stdout = _mock_stdx()
 
     def tearDown(self):
         """Restore mocked out functions"""
