@@ -101,7 +101,7 @@ def main(argv):
         try:
             mapsfile = open(map_filename)
             deletedlibs = get_deleted_libs(mapsfile)
-        except IOError as exc:
+        except IOError:
             read_failure = True
             continue
         mapsfile.close()
